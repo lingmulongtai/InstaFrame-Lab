@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <meta name="description" content="InstaFrame — Batch EXIF photo frame generator. Add beautiful frames with camera metadata to your photos.">
+  <meta name="theme-color" content="#e8e5df">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; font-src 'self'; img-src 'self' data: blob: https://api.mapbox.com https://tile.openstreetmap.org https://*.tile.openstreetmap.org; media-src 'self' blob:; connect-src 'self' https://nominatim.openstreetmap.org https://ipapi.co https://api.mapbox.com;">
+  <title>InstaFrame by lingmulongtai</title>
+  <link rel="icon" type="image/svg+xml" href="photo-camera-svgrepo-com.svg">
+  <meta property="og:title" content="InstaFrame">
+  <meta property="og:description" content="Add beautiful EXIF frames to your photos in batch. Free, local, private.">
+  <meta property="og:type" content="website">
+
+  <!-- Applies saved theme and hides the UI until app.js has translated it. -->
+  <script src="js/boot.js"></script>
+
+  <!-- Pinned frame fonts generated from @fontsource packages. -->
+  <link rel="stylesheet" href="vendor/fonts/fonts.css">
+
+  <link rel="stylesheet" href="css/style.css">
+
+</head>
+<body data-mobile-tab="preview" data-workspace="empty">
+<div class="app-shell">
+
+  <!-- ─── Sidebar ─────────────────────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="settings-tab-panel mobile-tab-panel" id="settingsPanel">
+    <div class="sidebar-resize-handle" id="sidebarResizeHandle" role="separator" tabindex="0"
+         aria-orientation="vertical" aria-valuemin="220" aria-valuemax="480" aria-valuenow="340"
+         data-i18n="resizeSettingsPanel" data-i18n-attr="aria-label"></div>
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="logo">
+          <span class="logo-main" data-i18n="appTitleMain">InstaFrame</span>
+          <span class="logo-by" data-i18n="appTitleBy">by lingmulongtai</span>
+        </span>
+      </div>
+      <div class="sidebar-actions">
+        <button id="customizeBtn" class="icon-btn" aria-expanded="false" aria-controls="customizePanel" data-i18n-attr="title,aria-label" data-i18n="customize" title="Customize">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"/><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
+        </button>
+        <button id="shareAppBtn" class="icon-btn" type="button" data-i18n-attr="title,aria-label" data-i18n="shareAppTitle" title="Share app">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M12 16V3"/><path d="m7 8 5-5 5 5"/></svg>
+        </button>
+        <button id="langToggleBtn" class="icon-btn lang-toggle-btn" type="button" data-i18n-attr="title,aria-label" data-i18n="langToggleTitle" title="Toggle language">EN/JA</button>
+      </div>
+    </div>
+
+    <div class="sidebar-body">
+
+    <!-- ── Customize panel ─────────────────────────────────────────────────── -->
+    <div class="customize-panel" id="customizePanel" aria-hidden="true" inert>
+
+      <div class="customize-section">
+        <div class="customize-label" data-i18n="appearance">Appearance</div>
+        <div class="customize-row">
+          <span class="customize-row-label" id="themeChoiceLabel" data-i18n="themeLabel">Theme</span>
+          <div class="pill-group" role="radiogroup" aria-labelledby="themeChoiceLabel">
+            <label class="pill-option">
+              <input type="radio" name="themeChoice" value="light">
+              <span data-i18n="themeLight">Light</span>
+            </label>
+            <label class="pill-option">
+              <input type="radio" name="themeChoice" value="soft-white" checked>
+              <span data-i18n="themeSoftWhite">Soft</span>
+            </label>
+            <label class="pill-option">
+              <input type="radio" name="themeChoice" value="blue-grey-dark">
+              <span data-i18n="themeBlueGrey">Blue</span>
+            </label>
+            <label class="pill-option">
+              <input type="radio" name="themeChoice" value="dark">
+              <span data-i18n="themeDark">Dark</span>
+            </label>
+            <label class="pill-option">
+              <input type="radio" name="themeChoice" value="system">
+              <span data-i18n="themeSystem">System</span>
+            </label>
+          </div>
+          <!-- Accent color presets -->
+          <div class="customize-row customize-row-accent">
+            <span class="customize-row-label" id="accentSwatchesLabel" data-i18n="accentLabel">Accent</span>
+            <div class="accent-swatches" id="accentSwatches" role="group" aria-labelledby="accentSwatchesLabel">
+              <button class="accent-swatch accent-blue" data-color="#2563eb" data-i18n="accentBlue" data-i18n-attr="title,aria-label" title="Blue accent" aria-label="Blue accent" aria-pressed="false"></button>
+              <button class="accent-swatch accent-purple" data-color="#7c3aed" data-i18n="accentPurple" data-i18n-attr="title,aria-label" title="Purple accent" aria-label="Purple accent" aria-pressed="false"></button>
+              <button class="accent-swatch accent-pink" data-color="#db2777" data-i18n="accentPink" data-i18n-attr="title,aria-label" title="Pink accent" aria-label="Pink accent" aria-pressed="false"></button>
+              <button class="accent-swatch accent-green" data-color="#059669" data-i18n="accentGreen" data-i18n-attr="title,aria-label" title="Green accent" aria-label="Green accent" aria-pressed="false"></button>
+              <button class="accent-swatch accent-amber" data-color="#d97706" data-i18n="accentAmber" data-i18n-attr="title,aria-label" title="Amber accent" aria-label="Amber accent" aria-pressed="false"></button>
+              <button class="accent-swatch accent-cyan active" data-color="#08798f" data-i18n="accentCyan" data-i18n-attr="title,aria-label" title="Cyan accent" aria-label="Cyan accent" aria-pressed="true"></button>
+              <button type="button" id="accentCustomBtn" class="color-option-custom" data-i18n="accentCustom" data-i18n-attr="title,aria-label" title="Custom accent" aria-label="Custom accent" aria-pressed="false">
+                <span class="rainbow-icon"></span>
+              </button>
+              <input type="color" id="accentColorPicker" class="accent-color-picker-proxy" value="#08798f" tabindex="-1" aria-hidden="true">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="customize-sep"></div>
+
+      <div class="customize-section">
+        <div class="customize-label" data-i18n="layoutLabel">Layout</div>
+        <div class="customize-row">
+          <span class="customize-row-label" id="layoutChoiceLabel" data-i18n="sidebarLabel">Sidebar</span>
+          <div class="pill-group" role="radiogroup" aria-labelledby="layoutChoiceLabel">
+            <label class="pill-option">
+              <input type="radio" name="layoutChoice" value="left" checked>
+              <span data-i18n="layoutLeft">Left</span>
+            </label>
+            <label class="pill-option">
+              <input type="radio" name="layoutChoice" value="right">
+              <span data-i18n="layoutRight">Right</span>
+            </label>
+          </div>
+        </div>
+        <div class="customize-row">
+          <span class="customize-row-label" id="editorSizeChoiceLabel" data-i18n="editorSizeLabel">EXIF Editor</span>
+          <div class="pill-group" role="radiogroup" aria-labelledby="editorSizeChoiceLabel">
+            <label class="pill-option">
+              <input type="radio" name="editorSizeChoice" value="compact">
+              <span data-i18n="editorSizeCompact">Compact</span>
+            </label>
+            <label class="pill-option">
+              <input type="radio" name="editorSizeChoice" value="comfortable" checked>
+              <span data-i18n="editorSizeComfortable">Comfortable</span>
+            </label>
+            <label class="pill-option">
+              <input type="radio" name="editorSizeChoice" value="large">
+              <span data-i18n="editorSizeLarge">Large</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="customize-sep"></div>
+
+      <div class="customize-section">
+        <div class="customize-label" data-i18n="privacyTitle">Privacy</div>
+        <div class="privacy-setting-card">
+          <div>
+            <div class="privacy-setting-title" data-i18n="locationNetworkTitle">Online location services</div>
+            <div class="privacy-setting-status" id="locationPrivacyStatus" role="status" aria-live="polite" aria-atomic="true">Off</div>
+            <div class="privacy-setting-status" id="mapboxUsageStatus"></div>
+          </div>
+          <button type="button" class="btn btn-secondary btn-sm" id="manageLocationPrivacyBtn" data-i18n="privacyManage">Manage</button>
+        </div>
+        <div class="mapbox-token-setting">
+          <label for="mapboxTokenInput" data-i18n="mapboxTokenLabel">Your Mapbox public token</label>
+          <div class="mapbox-token-row">
+            <input type="password" id="mapboxTokenInput" class="customize-token-input" placeholder="pk.…" autocomplete="off" spellcheck="false">
+            <button type="button" class="btn btn-secondary btn-sm" id="clearMapboxTokenBtn" data-i18n="mapboxTokenClear">Clear</button>
+          </div>
+          <div class="customize-row-hint" id="mapboxTokenStatus" data-i18n="mapboxTokenNotConfigured">Optional. Without a token the map overlay uses OpenStreetMap.</div>
+        </div>
+        <div class="customize-row-hint" data-i18n="privacyShortNotice">Photos stay on this device. Location tools may send coordinates to external map services only after consent.</div>
+      </div>
+
+      <div class="customize-sep"></div>
+      <div class="oss-support">
+        <a class="oss-support-link" href="https://github.com/lingmulongtai/InstaFrame" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.67.5 12.05c0 5.1 3.3 9.42 7.88 10.94.58.1.79-.26.79-.57 0-.28-.01-1.03-.02-2.03-3.2.7-3.87-1.55-3.87-1.55-.52-1.34-1.27-1.7-1.27-1.7-1.04-.72.08-.7.08-.7 1.15.08 1.76 1.2 1.76 1.2 1.02 1.77 2.67 1.26 3.32.96.1-.75.4-1.26.72-1.55-2.56-.3-5.26-1.3-5.26-5.78 0-1.28.45-2.32 1.2-3.14-.12-.3-.52-1.5.12-3.13 0 0 .98-.32 3.2 1.2a10.9 10.9 0 0 1 5.82 0c2.21-1.53 3.2-1.2 3.2-1.2.63 1.63.23 2.83.11 3.13.75.82 1.2 1.86 1.2 3.14 0 4.5-2.7 5.47-5.28 5.76.42.37.78 1.1.78 2.21 0 1.6-.01 2.9-.01 3.29 0 .31.2.68.8.57A11.57 11.57 0 0 0 23.5 12.05C23.5 5.67 18.35.5 12 .5Z"/></svg>
+          <span class="oss-support-copy">
+            <span class="oss-support-title" data-i18n="supportProjectTitle">Enjoying InstaFrame?</span>
+            <span class="oss-support-sub" data-i18n="supportProjectSub">Star this open-source project and help us improve it.</span>
+          </span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+        </a>
+      </div>
+
+    </div><!-- /customize-panel -->
+
+    <div class="sidebar-scroll" id="sidebarScroll">
+
+
+      <!-- ── Frame ─────────────────────────────────────────────────────────── -->
+      <div class="settings-section">
+        <div class="section-heading">
+          <svg class="section-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="1.5" width="13" height="13" rx="1.5"/><path d="M1.5 11 5 7.5l3 3 2.5-2.5L15 12.5"/><circle cx="5.5" cy="5" r="1.5" fill="currentColor" stroke="none"/></svg>
+          <span data-i18n="sectionFrame">Frame</span>
+        </div>
+
+        <!-- Frame Background Mode -->
+        <div class="setting-row">
+          <div class="setting-label" id="frameBackgroundLabel" data-i18n="frameBg">Background</div>
+          <div class="setting-control">
+            <div class="ratio-pills" role="radiogroup" aria-labelledby="frameBackgroundLabel">
+              <div class="ratio-pill">
+                <input type="radio" name="frameBackground" id="bg-color" value="color" checked>
+                <label for="bg-color" data-i18n="bgColor">Color</label>
+              </div>
+              <div class="ratio-pill">
+                <input type="radio" name="frameBackground" id="bg-blur" value="blur">
+                <label for="bg-blur" data-i18n="bgBlur">Blur</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Color -->
+        <div class="setting-row" id="frameColorRow">
+          <div class="setting-label" id="frameColorLabel" data-i18n="frameColor">Color</div>
+          <div class="setting-control">
+            <div class="color-row" role="radiogroup" aria-labelledby="frameColorLabel">
+              <label class="color-option" data-i18n="colorWhite" data-i18n-attr="title" title="White">
+                <input type="radio" name="frameColor" value="#F0F0F0" checked>
+                <span class="color-swatch lightgray"></span>
+              </label>
+              <label class="color-option" data-i18n="colorLightGray" data-i18n-attr="title" title="Light Gray">
+                <input type="radio" name="frameColor" value="#9E9E9E">
+                <span class="color-swatch gray"></span>
+              </label>
+              <label class="color-option" data-i18n="colorBlack" data-i18n-attr="title" title="Black">
+                <input type="radio" name="frameColor" value="#1a1a1a">
+                <span class="color-swatch black"></span>
+              </label>
+              <!-- Custom color: single rainbow button (picker inside = no artifact) -->
+              <label id="customColorBtn" class="color-option-custom" data-i18n="colorCustom" data-i18n-attr="title" title="Custom">
+                <input type="color" id="customColorPicker" value="#e8c49a">
+                <span class="rainbow-icon" id="customColorIcon"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Blur Background Options (shown when background=blur) -->
+        <div class="setting-row is-hidden" id="blurOptionsRow">
+          <div class="setting-label" data-i18n="blurOptions">Blur</div>
+          <div class="setting-control">
+            <div class="blur-controls">
+              <div class="blur-row">
+                <span class="blur-sub-label" id="blurRadiusLabel" data-i18n="blurRadius">Radius</span>
+                <div class="range-wrap">
+                  <input type="range" id="blurRadiusRange" min="0" max="60" step="2" value="20" aria-labelledby="blurRadiusLabel">
+                  <span class="range-val" id="blurRadiusVal">20px</span>
+                </div>
+              </div>
+              <div class="blur-row">
+                <span class="blur-sub-label" id="blurStyleLabel" data-i18n="blurStyle">Style</span>
+                <select id="blurStyleSelect" class="font-select blur-style-select" aria-labelledby="blurStyleLabel">
+                  <option value="normal" data-i18n="blurStyleNormal">Normal</option>
+                  <option value="grayscale" data-i18n="blurStyleGrayscale">Grayscale</option>
+                  <option value="sepia" data-i18n="blurStyleSepia">Sepia</option>
+                  <option value="saturate" data-i18n="blurStyleSaturate">Vivid</option>
+                </select>
+              </div>
+              <div class="blur-row">
+                <span class="blur-sub-label" id="blurBrightnessLabel" data-i18n="blurBrightness">Brightness</span>
+                <div class="range-wrap">
+                  <input type="range" id="blurBrightnessRange" min="20" max="120" step="5" value="80" aria-labelledby="blurBrightnessLabel">
+                  <span class="range-val" id="blurBrightnessVal">80%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thickness -->
+        <div class="setting-row">
+          <div class="setting-label" data-i18n="frameThickness">Thickness</div>
+          <div class="setting-control">
+            <div class="range-wrap">
+              <input type="range" id="thicknessRange" min="0.4" max="2.0" step="0.1" value="1.0">
+              <span class="range-val" id="thicknessRangeVal">1.0×</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Image Vertical Position -->
+        <div class="setting-row">
+          <div class="setting-label" data-i18n="imageOffsetY">Image Y</div>
+          <div class="setting-control">
+            <div class="range-wrap">
+              <input type="range" id="imageOffsetRange" min="-30" max="30" step="1" value="0">
+              <span class="range-val" id="imageOffsetRangeVal">0%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Aspect Ratio -->
+        <div class="setting-row">
+          <div class="setting-label" id="aspectRatioLabel" data-i18n="aspectRatio">Ratio</div>
+          <div class="setting-control">
+            <div class="ratio-pills" role="radiogroup" aria-labelledby="aspectRatioLabel">
+              <div class="ratio-pill">
+                <input type="radio" name="aspectRatio" id="ratio-orig" value="original" checked>
+                <label for="ratio-orig" data-i18n="ratioOriginal">Free</label>
+              </div>
+              <div class="ratio-pill">
+                <input type="radio" name="aspectRatio" id="ratio-1-1" value="1:1">
+                <label for="ratio-1-1">1:1</label>
+              </div>
+              <div class="ratio-pill ratio-pill-featured">
+                <input type="radio" name="aspectRatio" id="ratio-4-5" value="4:5">
+                <label for="ratio-4-5"><span>4:5</span><small data-i18n="ratioInstagramPost">Instagram post</small></label>
+              </div>
+              <div class="ratio-pill ratio-pill-social">
+                <input type="radio" name="aspectRatio" id="ratio-3-4" value="3:4">
+                <label for="ratio-3-4"><span>3:4</span><small data-i18n="ratioInstagramGrid">Profile grid</small></label>
+              </div>
+              <div class="ratio-pill ratio-pill-social">
+                <input type="radio" name="aspectRatio" id="ratio-9-16" value="9:16">
+                <label for="ratio-9-16"><span>9:16</span><small data-i18n="ratioInstagramStory">Story</small></label>
+              </div>
+              <div class="ratio-pill">
+                <input type="radio" name="aspectRatio" id="ratio-16-9" value="16:9">
+                <label for="ratio-16-9">16:9</label>
+              </div>
+              <div class="ratio-pill">
+                <input type="radio" name="aspectRatio" id="ratio-l-print" value="89:127">
+                <label for="ratio-l-print" data-i18n="ratioPrintL">L判</label>
+              </div>
+              <div class="ratio-pill">
+                <input type="radio" name="aspectRatio" id="ratio-2l-print" value="127:178">
+                <label for="ratio-2l-print" data-i18n="ratioPrint2L">2L判</label>
+              </div>
+              <div class="ratio-pill">
+                <input type="radio" name="aspectRatio" id="ratio-a4-print" value="210:297">
+                <label for="ratio-a4-print" data-i18n="ratioPrintA4">A4</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-label" id="aspectOrientationLabel" data-i18n="aspectOrientation">Orientation</div>
+          <div class="setting-control">
+            <div class="ratio-pills" role="radiogroup" aria-labelledby="aspectOrientationLabel">
+              <div class="ratio-pill">
+                <input type="radio" name="aspectOrientation" id="aspect-orientation-auto" value="auto" checked>
+                <label for="aspect-orientation-auto" data-i18n="orientationAuto">Auto</label>
+              </div>
+              <div class="ratio-pill">
+                <input type="radio" name="aspectOrientation" id="aspect-orientation-portrait" value="portrait">
+                <label for="aspect-orientation-portrait" data-i18n="orientationPortrait">Portrait</label>
+              </div>
+              <div class="ratio-pill">
+                <input type="radio" name="aspectOrientation" id="aspect-orientation-landscape" value="landscape">
+                <label for="aspect-orientation-landscape" data-i18n="orientationLandscape">Landscape</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Outer Padding -->
+        <div class="setting-row">
+          <div class="setting-label" data-i18n="outerPadding">Padding</div>
+          <div class="setting-control">
+            <div class="range-wrap">
+              <input type="range" id="outerPaddingRange" min="0" max="15" step="1" value="0">
+              <span class="range-val" id="outerPaddingRangeVal">0%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-sep"></div>
+
+      <!-- ── Typography ─────────────────────────────────────────────────────── -->
+      <div class="settings-section">
+        <div class="section-heading">
+          <svg class="section-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M2 4V2.5h12V4M8 2.5v11M5.5 13.5h5"/></svg>
+          <span data-i18n="sectionTypography">Typography</span>
+        </div>
+
+        <!-- Font Family (options populated dynamically for popularity tracking) -->
+        <div class="setting-row">
+          <div class="setting-label" id="fontFamilyLabel" data-i18n="fontFamily">Font</div>
+          <div class="setting-control font-picker" id="fontPicker">
+            <button type="button" id="fontFamily" class="font-picker-button" role="combobox"
+                    aria-haspopup="listbox" aria-expanded="false" aria-controls="fontFamilyList"
+                    aria-labelledby="fontFamilyLabel" value="Inter">
+              <span class="font-picker-value" id="fontFamilyValue">Inter</span>
+            </button>
+            <div class="font-picker-list" id="fontFamilyList" role="listbox" aria-labelledby="fontFamilyLabel" tabindex="-1" hidden><!-- filled by JS --></div>
+          </div>
+        </div>
+
+        <!-- Text Color -->
+        <div class="setting-row">
+          <div class="setting-label" id="textColorModeLabel" data-i18n="textColor">Text Color</div>
+          <div class="setting-control">
+            <div class="text-color-controls">
+              <div class="ratio-pills" role="radiogroup" aria-labelledby="textColorModeLabel">
+                <div class="ratio-pill">
+                  <input type="radio" name="textColorMode" id="text-color-auto" value="auto" checked>
+                  <label for="text-color-auto" data-i18n="textColorAuto">Auto</label>
+                </div>
+                <div class="ratio-pill">
+                  <input type="radio" name="textColorMode" id="text-color-light" value="light">
+                  <label for="text-color-light" data-i18n="textColorLight">Light</label>
+                </div>
+                <div class="ratio-pill">
+                  <input type="radio" name="textColorMode" id="text-color-dark" value="dark">
+                  <label for="text-color-dark" data-i18n="textColorDark">Dark</label>
+                </div>
+                <div class="ratio-pill text-color-custom-pill">
+                  <input type="radio" name="textColorMode" id="text-color-custom" value="custom">
+                  <label for="text-color-custom" data-i18n="colorCustom">Custom</label>
+                </div>
+              </div>
+              <input type="color" id="textColorPicker" value="#FFFFFF" aria-label="Custom text color" data-i18n="customTextColor" data-i18n-attr="aria-label">
+            </div>
+          </div>
+        </div>
+
+        <!-- Text style: bold and italic for each caption part -->
+        <div class="setting-row text-style-row">
+          <div class="setting-label" id="textStyleLabel" data-i18n="textStyle">Text Style</div>
+          <div class="setting-control">
+            <div class="text-style-grid" role="group" aria-labelledby="textStyleLabel">
+              <div class="text-style-part">
+                <span class="text-style-name" data-i18n="textStylePartShotOn">Shot on</span>
+                <div class="text-style-toggles">
+                  <div class="style-toggle-btn">
+                    <input type="checkbox" id="shotOnBold" data-style-part="textStylePartShotOn" data-style-kind="styleBold">
+                    <label for="shotOnBold" class="style-toggle-bold" aria-hidden="true">B</label>
+                  </div>
+                  <div class="style-toggle-btn">
+                    <input type="checkbox" id="shotOnItalic" data-style-part="textStylePartShotOn" data-style-kind="styleItalic">
+                    <label for="shotOnItalic" class="style-toggle-italic" aria-hidden="true">I</label>
+                  </div>
+                </div>
+              </div>
+              <div class="text-style-part">
+                <span class="text-style-name" data-i18n="textStylePartModel">Camera</span>
+                <div class="text-style-toggles">
+                  <div class="style-toggle-btn">
+                    <input type="checkbox" id="modelBold" data-style-part="textStylePartModel" data-style-kind="styleBold">
+                    <label for="modelBold" class="style-toggle-bold" aria-hidden="true">B</label>
+                  </div>
+                  <div class="style-toggle-btn">
+                    <input type="checkbox" id="modelItalic" data-style-part="textStylePartModel" data-style-kind="styleItalic">
+                    <label for="modelItalic" class="style-toggle-italic" aria-hidden="true">I</label>
+                  </div>
+                </div>
+              </div>
+              <div class="text-style-part">
+                <span class="text-style-name" data-i18n="textStylePartMaker">Maker</span>
+                <div class="text-style-toggles">
+                  <div class="style-toggle-btn">
+                    <input type="checkbox" id="makerBold" data-style-part="textStylePartMaker" data-style-kind="styleBold">
+                    <label for="makerBold" class="style-toggle-bold" aria-hidden="true">B</label>
+                  </div>
+                  <div class="style-toggle-btn">
+                    <input type="checkbox" id="makerItalic" data-style-part="textStylePartMaker" data-style-kind="styleItalic">
+                    <label for="makerItalic" class="style-toggle-italic" aria-hidden="true">I</label>
+                  </div>
+                </div>
+              </div>
+              <div class="text-style-part">
+                <span class="text-style-name" data-i18n="textStylePartExif">EXIF</span>
+                <div class="text-style-toggles">
+                  <div class="style-toggle-btn">
+                    <input type="checkbox" id="exifBold" data-style-part="textStylePartExif" data-style-kind="styleBold">
+                    <label for="exifBold" class="style-toggle-bold" aria-hidden="true">B</label>
+                  </div>
+                  <div class="style-toggle-btn">
+                    <input type="checkbox" id="exifItalic" data-style-part="textStylePartExif" data-style-kind="styleItalic">
+                    <label for="exifItalic" class="style-toggle-italic" aria-hidden="true">I</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Camera Model Font Size -->
+        <div class="setting-row">
+          <div class="setting-label" data-i18n="shotOnFontSize">Camera model size</div>
+          <div class="setting-control">
+            <div class="range-wrap">
+              <input type="range" id="shotOnFontRange" min="0.5" max="2.0" step="0.1" value="1.0">
+              <span class="range-val" id="shotOnFontRangeVal">1.0×</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- EXIF Font Size -->
+        <div class="setting-row">
+          <div class="setting-label" data-i18n="exifFontSize">EXIF size</div>
+          <div class="setting-control">
+            <div class="range-wrap">
+              <input type="range" id="exifFontRange" min="0.5" max="2.0" step="0.1" value="1.0">
+              <span class="range-val" id="exifFontRangeVal">1.0×</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Line Spacing -->
+        <div class="setting-row">
+          <div class="setting-label" data-i18n="lineGap">Spacing</div>
+          <div class="setting-control">
+            <div class="range-wrap">
+              <input type="range" id="lineGapRange" min="0.5" max="3.0" step="0.1" value="1.0">
+              <span class="range-val" id="lineGapRangeVal">1.0×</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Text Vertical Offset -->
+        <div class="setting-row">
+          <div class="setting-label" data-i18n="textOffsetY">V-offset</div>
+          <div class="setting-control">
+            <div class="range-wrap">
+              <input type="range" id="textOffsetRange" min="-2.0" max="2.0" step="0.1" value="0">
+              <span class="range-val" id="textOffsetRangeVal">0.0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-sep"></div>
+
+      <!-- ── Elements ───────────────────────────────────────────────────────── -->
+      <div class="settings-section">
+        <div class="section-heading">
+          <svg class="section-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8Z"/><circle cx="8" cy="8" r="2.5"/></svg>
+          <span data-i18n="sectionElements">Elements</span>
+        </div>
+        <div class="setting-row">
+          <div class="setting-control">
+            <div class="vis-toggles">
+              <label class="ios-toggle">
+                <input type="checkbox" id="showShotOn" checked>
+                <span class="ios-toggle-track"><span class="ios-toggle-thumb"></span></span>
+                <span class="ios-toggle-label" data-i18n="showShotOn">Show "Shot on"</span>
+              </label>
+              <label class="ios-toggle">
+                <input type="checkbox" id="showExifInfo" checked>
+                <span class="ios-toggle-track"><span class="ios-toggle-thumb"></span></span>
+                <span class="ios-toggle-label" data-i18n="showExifInfo">EXIF Info</span>
+              </label>
+              <label class="ios-toggle">
+                <input type="checkbox" id="showLocation">
+                <span class="ios-toggle-track"><span class="ios-toggle-thumb"></span></span>
+                <span class="ios-toggle-label" data-i18n="showLocation">Location</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <!-- Location position (shown when showLocation is on) -->
+        <div class="setting-row location-pos-row is-hidden" id="locationPositionRow">
+          <div class="setting-label" id="locationPositionLabel" data-i18n="locationPosition">Position</div>
+          <div class="setting-control">
+            <div class="ratio-pills" role="radiogroup" aria-labelledby="locationPositionLabel">
+              <div class="ratio-pill">
+                <input type="radio" name="locationPos" id="locpos-below" value="below-exif" checked>
+                <label for="locpos-below" data-i18n="locPosBelow">Below EXIF</label>
+              </div>
+              <div class="ratio-pill">
+                <input type="radio" name="locationPos" id="locpos-right" value="cam-right">
+                <label for="locpos-right" data-i18n="locPosCamRight">Cam Right</label>
+              </div>
+              <div class="ratio-pill">
+                <input type="radio" name="locationPos" id="locpos-left" value="cam-left">
+                <label for="locpos-left" data-i18n="locPosCamLeft">Cam Left</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Location icon picker (shown when showLocation is on) -->
+        <div class="setting-row is-hidden" id="locationIconRow">
+          <div class="setting-label" id="locationIconLabel" data-i18n="mapIcon">Icon</div>
+          <div class="setting-control">
+            <div class="icon-picker" role="radiogroup" aria-labelledby="locationIconLabel">
+              <button type="button" class="icon-pick-btn active" data-icon="pin" title="Pin" aria-label="Pin" role="radio" aria-checked="true" tabindex="0" data-i18n="locationIconPin" data-i18n-attr="title,aria-label">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
+              </button>
+              <button type="button" class="icon-pick-btn" data-icon="dot" title="Ring" aria-label="Ring" role="radio" aria-checked="false" tabindex="-1" data-i18n="locationIconRing" data-i18n-attr="title,aria-label">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/></svg>
+              </button>
+              <button type="button" class="icon-pick-btn" data-icon="compass" title="Diamond" aria-label="Diamond" role="radio" aria-checked="false" tabindex="-1" data-i18n="locationIconDiamond" data-i18n-attr="title,aria-label">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3 20 12 12 21 4 12 12 3Z"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/></svg>
+              </button>
+              <button type="button" class="icon-pick-btn" data-icon="globe" title="Flag" aria-label="Flag" role="radio" aria-checked="false" tabindex="-1" data-i18n="locationIconFlag" data-i18n-attr="title,aria-label">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v18"/><path d="M7 4h10l-2.3 3L17 10H7"/><circle cx="7" cy="20" r="1.8" fill="currentColor" stroke="none"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Map overlay (shown when showLocation is on) -->
+        <div class="setting-row map-overlay-row is-hidden" id="mapOverlayRow">
+          <div class="setting-control">
+            <div class="vis-toggles">
+              <label class="ios-toggle">
+                <input type="checkbox" id="showMapOverlay">
+                <span class="ios-toggle-track"><span class="ios-toggle-thumb"></span></span>
+                <span class="ios-toggle-label">
+                  <span data-i18n="showMapOverlay">Map Overlay</span>
+                  <span class="tooltip-anchor">?<span class="tooltip-box" data-i18n="mapOverlayTooltip">Draws a small OpenStreetMap map on the photo. Requires location coordinates.</span></span>
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="setting-row is-hidden" id="mapOverlayOpacityRow">
+          <div class="setting-label" data-i18n="mapOverlayOpacity">Opacity</div>
+          <div class="setting-control">
+            <div class="range-wrap">
+              <input type="range" id="mapOverlayOpacityRange" min="10" max="100" step="5" value="70">
+              <span class="range-val" id="mapOverlayOpacityVal">70%</span>
+            </div>
+          </div>
+        </div>
+        <div class="setting-row is-hidden" id="mapOverlayPositionRow">
+          <div class="setting-label" id="mapOverlayPositionLabel" data-i18n="mapOverlayPosition">Map position</div>
+          <div class="setting-control">
+            <div class="ratio-pills" role="radiogroup" aria-labelledby="mapOverlayPositionLabel">
+              <div class="ratio-pill">
+                <input type="radio" name="mapOverlayPos" id="mapov-br" value="bottom-right" checked>
+                <label for="mapov-br" data-i18n="mapPosBottomRight">Bottom Right</label>
+              </div>
+              <div class="ratio-pill">
+                <input type="radio" name="mapOverlayPos" id="mapov-tr" value="top-right">
+                <label for="mapov-tr" data-i18n="mapPosTopRight">Top Right</label>
+              </div>
+              <div class="ratio-pill">
+                <input type="radio" name="mapOverlayPos" id="mapov-tl" value="top-left">
+                <label for="mapov-tl" data-i18n="mapPosTopLeft">Top Left</label>
+              </div>
+              <div class="ratio-pill">
+                <input type="radio" name="mapOverlayPos" id="mapov-bl" value="bottom-left">
+                <label for="mapov-bl" data-i18n="mapPosBottomLeft">Bottom Left</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-sep"></div>
+
+      <!-- ── Export ────────────────────────────────────────────────────────── -->
+      <div class="settings-section">
+        <div class="section-heading">
+          <svg class="section-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M5 8l3 3 3-3M2.5 12v1a.5.5 0 0 0 .5.5h10a.5.5 0 0 0 .5-.5v-1"/></svg>
+          <span data-i18n="sectionExport">Export</span>
+        </div>
+
+        <!-- Output size of the selected item (pixels and estimated file size) -->
+        <div class="setting-row output-estimate-row">
+          <div class="setting-label" data-i18n="outputSizeLabel">Output size</div>
+          <div class="setting-control">
+            <span class="output-estimate" id="outputEstimate" data-i18n="outputSizeNone">Add a photo to see it</span>
+          </div>
+        </div>
+
+        <!-- Photo format -->
+        <div class="setting-row">
+          <div class="setting-label" id="exportPhotoFormatLabel" data-i18n="exportPhotoLabel">Photo</div>
+          <div class="setting-control">
+            <div class="ratio-pills" role="radiogroup" aria-labelledby="exportPhotoFormatLabel">
+              <div class="ratio-pill">
+                <input type="radio" name="exportPhotoFormat" id="fmt-jpeg" value="jpeg" checked>
+                <label for="fmt-jpeg">JPEG</label>
+              </div>
+              <div class="ratio-pill">
+                <input type="radio" name="exportPhotoFormat" id="fmt-webp" value="webp">
+                <label for="fmt-webp">WebP</label>
+              </div>
+              <div class="ratio-pill">
+                <input type="radio" name="exportPhotoFormat" id="fmt-png" value="png">
+                <label for="fmt-png">PNG</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Photo quality (hidden when PNG) -->
+        <div class="setting-row" id="photoQualityRow">
+          <div class="setting-label" data-i18n="exportQuality">Quality</div>
+          <div class="setting-control">
+            <div class="range-wrap">
+              <input type="range" id="photoQualityRange" min="60" max="100" step="1" value="92">
+              <span class="range-val" id="photoQualityRangeVal">92%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Spatial photos (shown when a stereo pair is loaded) -->
+        <div class="setting-row is-hidden" id="spatialExportRow">
+          <div class="setting-label" id="exportSpatialLabel" data-i18n="exportSpatialLabel">Spatial photo</div>
+          <div class="setting-control">
+            <div class="ratio-pills" role="radiogroup" aria-labelledby="exportSpatialLabel">
+              <div class="ratio-pill">
+                <input type="radio" name="exportSpatialMode" id="spatial-heic" value="heic" checked>
+                <label for="spatial-heic" data-i18n="exportSpatialHeic">Spatial HEIC</label>
+              </div>
+              <div class="ratio-pill">
+                <input type="radio" name="exportSpatialMode" id="spatial-sbs" value="sbs">
+                <label for="spatial-sbs" data-i18n="exportSpatialSbs">Side by side</label>
+              </div>
+              <div class="ratio-pill">
+                <input type="radio" name="exportSpatialMode" id="spatial-2d" value="2d">
+                <label for="spatial-2d" data-i18n="exportSpatial2d">2D photo</label>
+              </div>
+            </div>
+            <p class="setting-note" id="spatialExportNote" data-i18n="exportSpatialHeicUnavailable" hidden>This browser cannot encode HEVC, so spatial photos are saved as 2D photos. Choose side by side to keep both eyes.</p>
+          </div>
+        </div>
+        <div class="setting-row is-hidden" id="spatialDepthRow">
+          <div class="setting-label" data-i18n="spatialDepth">Frame pop-out</div>
+          <div class="setting-control">
+            <div class="range-wrap">
+              <input type="range" id="spatialDepthRange" min="0" max="3" step="0.1" value="1">
+              <span class="range-val" id="spatialDepthRangeVal">1.0%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video format (dynamically filled by JS) -->
+        <div class="setting-row">
+          <div class="setting-label" id="exportVideoFormatLabel" data-i18n="exportVideoLabel">Video</div>
+          <div class="setting-control">
+            <div class="ratio-pills" id="videoFormatPills"><!-- filled by JS --></div>
+          </div>
+        </div>
+
+        <!-- Target video frame rate -->
+        <div class="setting-row">
+          <div class="setting-label" id="exportVideoFpsLabel" data-i18n="exportVideoFps">Frame rate</div>
+          <div class="setting-control">
+            <div class="ratio-pills" role="radiogroup" aria-labelledby="exportVideoFpsLabel" aria-describedby="videoFpsHint">
+              <div class="ratio-pill"><input type="radio" name="exportVideoFps" id="vfps-60" value="60" checked><label for="vfps-60">60 fps</label></div>
+              <div class="ratio-pill"><input type="radio" name="exportVideoFps" id="vfps-30" value="30"><label for="vfps-30">30 fps</label></div>
+            </div>
+            <div class="setting-hint" id="videoFpsHint" data-i18n="videoFpsHint">At 60 fps, source frames are preserved where supported. Real-time fallback may drop frames.</div>
+          </div>
+        </div>
+
+        <!-- Prefer a lower-memory encoder when exporting at 60 fps -->
+        <div class="setting-row">
+          <div class="setting-label" id="videoMemoryModeLabel" data-i18n="videoMemoryMode">Video processing</div>
+          <div class="setting-control">
+            <div class="ratio-pills" role="radiogroup" aria-labelledby="videoMemoryModeLabel" aria-describedby="videoMemoryModeHint">
+              <div class="ratio-pill"><input type="radio" name="videoMemoryMode" id="video-memory" value="memory" checked><label for="video-memory" data-i18n="videoMemoryPriority">Save memory</label></div>
+              <div class="ratio-pill"><input type="radio" name="videoMemoryMode" id="video-quality" value="quality"><label for="video-quality" data-i18n="videoQualityPriority">Prefer quality</label></div>
+            </div>
+            <div class="setting-hint" id="videoMemoryModeHint" data-i18n="videoMemoryModeHint">At 60 fps, this prefers hardware processing and may reduce dimensions. Memory use varies by device; quality priority favors larger dimensions.</div>
+          </div>
+        </div>
+
+        <!-- Video bitrate -->
+        <div class="setting-row">
+          <div class="setting-label" id="exportVideoBitrateLabel" data-i18n="exportBitrateLabel">Bitrate</div>
+          <div class="setting-control">
+            <div class="ratio-pills" role="radiogroup" aria-labelledby="exportVideoBitrateLabel" aria-describedby="videoBitrateHint">
+              <div class="ratio-pill"><input type="radio" name="exportVideoBitrate" id="vbr-source" value="source" checked><label for="vbr-source" data-i18n="videoBitrateSource">Match source</label></div>
+              <div class="ratio-pill">
+                <input type="radio" name="exportVideoBitrate" id="vbr-4" value="4">
+                <label for="vbr-4">4M</label>
+              </div>
+              <div class="ratio-pill">
+                <input type="radio" name="exportVideoBitrate" id="vbr-8" value="8">
+                <label for="vbr-8">8M</label>
+              </div>
+              <div class="ratio-pill">
+                <input type="radio" name="exportVideoBitrate" id="vbr-16" value="16">
+                <label for="vbr-16">16M</label>
+              </div>
+              <div class="ratio-pill">
+                <input type="radio" name="exportVideoBitrate" id="vbr-24" value="24">
+                <label for="vbr-24">24M</label>
+              </div>
+              <div class="ratio-pill"><input type="radio" name="exportVideoBitrate" id="vbr-50" value="50"><label for="vbr-50">50M</label></div>
+              <div class="ratio-pill"><input type="radio" name="exportVideoBitrate" id="vbr-80" value="80"><label for="vbr-80">80M</label></div>
+            </div>
+            <div class="setting-hint" id="videoBitrateHint" data-i18n="videoBitrateHint">Source estimate includes audio and is capped at 80 Mbps; the encoder may vary.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-sep"></div>
+      <div class="oss-support">
+        <a class="oss-support-link" href="https://github.com/lingmulongtai/InstaFrame" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.67.5 12.05c0 5.1 3.3 9.42 7.88 10.94.58.1.79-.26.79-.57 0-.28-.01-1.03-.02-2.03-3.2.7-3.87-1.55-3.87-1.55-.52-1.34-1.27-1.7-1.27-1.7-1.04-.72.08-.7.08-.7 1.15.08 1.76 1.2 1.76 1.2 1.02 1.77 2.67 1.26 3.32.96.1-.75.4-1.26.72-1.55-2.56-.3-5.26-1.3-5.26-5.78 0-1.28.45-2.32 1.2-3.14-.12-.3-.52-1.5.12-3.13 0 0 .98-.32 3.2 1.2a10.9 10.9 0 0 1 5.82 0c2.21-1.53 3.2-1.2 3.2-1.2.63 1.63.23 2.83.11 3.13.75.82 1.2 1.86 1.2 3.14 0 4.5-2.7 5.47-5.28 5.76.42.37.78 1.1.78 2.21 0 1.6-.01 2.9-.01 3.29 0 .31.2.68.8.57A11.57 11.57 0 0 0 23.5 12.05C23.5 5.67 18.35.5 12 .5Z"/></svg>
+          <span class="oss-support-copy">
+            <span class="oss-support-title" data-i18n="supportProjectTitle">Enjoying InstaFrame?</span>
+            <span class="oss-support-sub" data-i18n="supportProjectSub">Star this open-source project and help us improve it.</span>
+          </span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+        </a>
+      </div>
+
+    </div><!-- /sidebar-scroll -->
+
+    </div><!-- /sidebar-body -->
+    </div><!-- /settings-tab-panel -->
+  </aside>
+
+  <!-- ─── Mobile sidebar toggle button (hidden on desktop) ───────────────── -->
+  <button id="mobileSidebarToggle" class="mobile-sidebar-toggle" aria-label="Settings">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"/><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
+  </button>
+  <!-- Mobile sidebar overlay backdrop -->
+  <div id="mobileSidebarOverlay" class="mobile-sidebar-overlay"></div>
+
+  <!-- ─── Main ─────────────────────────────────────────────────────────────── -->
+  <main class="main">
+    <h1 class="sr-only" data-i18n="appTitleMain">InstaFrame</h1>
+
+    <!-- Live Preview + Drop Zone -->
+    <div class="preview-area mobile-tab-panel" id="dropZone">
+      <input type="file" id="fileInput" multiple
+             data-i18n="emptyChooseMedia" data-i18n-attr="aria-label"
+             accept="image/jpeg,image/png,image/heic,image/heif,image/webp,video/mp4,video/quicktime,video/webm,video/x-msvideo,video/x-matroska,video/3gpp,video/x-m4v,.jpg,.jpeg,.png,.heic,.heif,.webp,.mp4,.mov,.webm,.avi,.mkv,.3gp,.m4v">
+      <canvas id="livePreviewCanvas" width="0" height="0"></canvas>
+      <canvas id="livePreviewDetailCanvas" class="live-preview-detail" width="0" height="0" aria-hidden="true"></canvas>
+      <video id="livePreviewVideo" class="live-preview-video" playsinline></video>
+      <div class="preview-error" id="livePreviewError" role="alert" aria-atomic="true" hidden></div>
+      <div class="preview-warning" id="previewWarning" role="status" aria-live="polite" aria-atomic="true" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5 2.5 20h19L12 3.5Z"/><path d="M12 10v4.5M12 17.5v.01"/></svg>
+        <ul class="preview-warning-list" id="previewWarningList"></ul>
+      </div>
+
+      <div class="preview-empty" id="previewEmpty">
+        <!-- Decorative sample print: shows what an export looks like before any media is added. -->
+        <figure class="sample-print" id="samplePrint" aria-hidden="true">
+          <div class="sample-print-photo">
+            <svg viewBox="0 0 600 400" preserveAspectRatio="xMidYMid slice" focusable="false">
+              <defs>
+                <linearGradient id="sampleSky" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#1c2550"/>
+                  <stop offset="0.38" stop-color="#5b4a86"/>
+                  <stop offset="0.62" stop-color="#c9728a"/>
+                  <stop offset="0.8" stop-color="#f29a6b"/>
+                  <stop offset="1" stop-color="#ffd29a"/>
+                </linearGradient>
+                <radialGradient id="sampleSun" cx="0.5" cy="0.5" r="0.5">
+                  <stop offset="0" stop-color="#fffaf0"/>
+                  <stop offset="0.55" stop-color="#ffe1a8"/>
+                  <stop offset="1" stop-color="#ffbe7a"/>
+                </radialGradient>
+                <radialGradient id="sampleGlow" cx="0.5" cy="0.5" r="0.5">
+                  <stop offset="0" stop-color="#ffd9a0" stop-opacity="0.75"/>
+                  <stop offset="1" stop-color="#ffb27a" stop-opacity="0"/>
+                </radialGradient>
+                <linearGradient id="sampleLake" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#f3a77a"/>
+                  <stop offset="0.35" stop-color="#9a5d78"/>
+                  <stop offset="1" stop-color="#1d1a35"/>
+                </linearGradient>
+                <linearGradient id="sampleFar" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#b9708a"/>
+                  <stop offset="1" stop-color="#c98a8c"/>
+                </linearGradient>
+                <linearGradient id="sampleMid" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#6d4a78"/>
+                  <stop offset="1" stop-color="#8a5a7c"/>
+                </linearGradient>
+                <linearGradient id="sampleNear" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#2e2347"/>
+                  <stop offset="1" stop-color="#3d2c52"/>
+                </linearGradient>
+              </defs>
+              <rect width="600" height="400" fill="url(#sampleSky)"/>
+              <circle cx="392" cy="186" r="128" fill="url(#sampleGlow)"/>
+              <circle cx="392" cy="182" r="28" fill="url(#sampleSun)"/>
+              <path d="M0 236 L58 204 L104 222 L168 178 L226 214 L282 190 L330 220 L400 196 L452 214 L520 182 L600 214 L600 268 L0 268Z" fill="url(#sampleFar)" opacity="0.85"/>
+              <path d="M0 252 L46 230 L92 246 L150 206 L196 238 L250 222 L300 248 L362 226 L426 252 L488 218 L548 244 L600 232 L600 274 L0 274Z" fill="url(#sampleMid)"/>
+              <path d="M0 270 L70 244 L118 262 L176 236 L238 268 L600 268 L600 280 L0 280Z" fill="url(#sampleNear)"/>
+              <path d="M600 262 L548 240 L498 260 L460 250 L420 270 L600 272Z" fill="url(#sampleNear)"/>
+              <rect y="270" width="600" height="130" fill="url(#sampleLake)"/>
+              <g fill="#ffe7bf" opacity="0.55">
+                <rect x="360" y="282" width="64" height="2.4" rx="1.2"/>
+                <rect x="372" y="292" width="40" height="2" rx="1"/>
+                <rect x="352" y="303" width="80" height="1.6" rx="0.8" opacity="0.7"/>
+                <rect x="380" y="315" width="26" height="1.6" rx="0.8" opacity="0.6"/>
+                <rect x="366" y="328" width="52" height="1.2" rx="0.6" opacity="0.45"/>
+              </g>
+              <path d="M0 400 L0 330 Q60 316 120 334 T240 350 Q300 360 330 400Z" fill="#14111f"/>
+              <g fill="#14111f">
+                <path d="M34 336 L46 288 L58 336Z"/>
+                <path d="M52 340 L68 270 L84 340Z"/>
+                <path d="M80 344 L92 300 L104 344Z"/>
+                <path d="M548 400 L600 352 L600 400Z"/>
+              </g>
+            </svg>
+          </div>
+          <figcaption class="sample-print-caption">
+            <span class="sample-print-camera"><span class="sample-print-label">Shot on</span> <span class="sample-print-model">X-T5</span> <span class="sample-print-make">FUJIFILM</span></span>
+            <span class="sample-print-exif"><span>XF35mmF1.4 R</span><span>35mm</span><span>f/1.4</span><span>1/250s</span><span>ISO 400</span></span>
+          </figcaption>
+        </figure>
+        <div class="preview-empty-copy">
+          <div class="preview-empty-text" data-i18n="dropZoneText">Drop photos here</div>
+          <div class="preview-empty-cta">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            <span data-i18n="emptyChooseMedia">Choose photos or videos</span>
+          </div>
+          <div class="preview-empty-sub" data-i18n="emptyPrivacyNote">Processed on this device. Nothing is uploaded.</div>
+        </div>
+      </div>
+      <div class="preview-history-wrap" id="previewHistoryWrap" inert aria-hidden="true">
+        <button class="preview-history-btn" id="undoEditBtn" data-i18n="undoEdit" data-i18n-attr="title" title="Undo"><span data-i18n="undoEdit">Undo</span></button>
+        <button class="preview-history-btn" id="redoEditBtn" data-i18n="redoEdit" data-i18n-attr="title" title="Redo"><span data-i18n="redoEdit">Redo</span></button>
+      </div>
+      <!-- Quality button (bottom-left, shown only when preview is active) -->
+      <div class="preview-quality-wrap" id="previewQualityWrap" inert aria-hidden="true">
+        <button class="preview-quality-btn" id="previewQualityBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="previewQualityPopup" data-i18n-attr="title" data-i18n="previewQualityTitle" title="Preview quality">
+          <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="3.5" width="13" height="9" rx="1.5"/><path d="M4 3.5V2.5M8 3.5V2.5M12 3.5V2.5"/><path d="M4 8.5h2M6 7l2 1.5L6 10"/></svg>
+          <span id="previewQualityLabel">Auto</span>
+        </button>
+        <button type="button" class="preview-quality-btn preview-spatial-btn" id="spatialPreviewBtn" aria-pressed="false" data-i18n-attr="title" data-i18n="spatialPreviewTitle" title="Preview the spatial photo in 3D" hidden>
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="8.5" r="2.6"/><circle cx="10.5" cy="8.5" r="2.6"/><path d="M8.1 8.2c-.1-.4-.1-.4 0 0"/><path d="M2.9 8.5 2 5.5M13.1 8.5l.9-3"/></svg>
+          <span data-i18n="spatialPreview">3D</span>
+        </button>
+        <div class="preview-quality-popup" id="previewQualityPopup" role="menu" data-i18n="previewQualityTitle" data-i18n-attr="aria-label">
+          <div class="pq-option active" role="menuitemradio" aria-checked="true" tabindex="-1" data-q="auto" data-i18n="previewQualityAuto">Auto (zoom-adaptive)</div>
+          <div class="pq-option" role="menuitemradio" aria-checked="false" tabindex="-1" data-q="draft" data-i18n="previewQualityDraft">Draft</div>
+          <div class="pq-option" role="menuitemradio" aria-checked="false" tabindex="-1" data-q="normal" data-i18n="previewQualityNormal">Normal</div>
+          <div class="pq-option" role="menuitemradio" aria-checked="false" tabindex="-1" data-q="high" data-i18n="previewQualityHigh">High</div>
+          <div class="pq-option" role="menuitemradio" aria-checked="false" tabindex="-1" data-q="max" data-i18n="previewQualityMax">Max</div>
+        </div>
+      </div>
+      <!-- EXIF panel (left side, desktop only, shown when preview is active) -->
+      <div class="preview-exif-wrap exif-open" id="previewExifWrap" inert aria-hidden="true">
+        <div class="preview-exif-drawer" id="previewExifDrawer">
+          <button type="button" class="preview-exif-drawer-header" aria-expanded="true" aria-controls="previewExifContent">
+            <span class="preview-exif-drawer-title" data-i18n="editExif">Edit EXIF</span>
+            <span class="preview-exif-collapse-btn" id="previewExifCollapseBtn" aria-hidden="true">
+              <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l4-4 4 4"/></svg>
+            </span>
+          </button>
+          <div class="preview-exif-content" id="previewExifContent" aria-hidden="false">
+            <div class="preview-exif-grid">
+              <label for="live-exif-make" data-i18n="cameraMake">Camera Make</label>
+              <input id="live-exif-make" placeholder="e.g. FUJIFILM">
+              <label for="live-exif-model" data-i18n="cameraModel">Camera Model</label>
+              <input id="live-exif-model" placeholder="e.g. X-T5">
+              <label for="live-exif-lens" data-i18n="lensModel">Lens</label>
+              <input id="live-exif-lens" placeholder="e.g. XF35mmF1.4 R">
+              <label for="live-exif-fl" data-i18n="focalLength">Focal Length</label>
+              <input id="live-exif-fl" placeholder="35">
+              <label for="live-exif-fn" data-i18n="fNumber">Aperture</label>
+              <input id="live-exif-fn" placeholder="1.4">
+              <label for="live-exif-et" data-i18n="exposureTime">Shutter</label>
+              <input id="live-exif-et" placeholder="1/250">
+              <label for="live-exif-iso" data-i18n="iso">ISO</label>
+              <input id="live-exif-iso" placeholder="400">
+              <label for="live-exif-location" data-i18n="location">Location</label>
+              <div class="preview-exif-location-row">
+                <input id="live-exif-location" placeholder="e.g. Tokyo, Japan">
+                <div class="preview-exif-location-actions">
+                  <button type="button" class="preview-exif-map-btn" id="resolveLocationNameBtn" title="" data-i18n-attr="title,aria-label" data-i18n="resolveLocationName">
+                    <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="4"/><path d="m10 10 3 3"/><path d="M3 7h8M7 3c1.4 1.5 1.4 6.5 0 8M7 3C5.6 4.5 5.6 9.5 7 11"/></svg>
+                  </button>
+                  <button class="preview-exif-geo-btn" id="getDeviceLocationBtn" title="" data-i18n-attr="title,aria-label" data-i18n="getLocation">
+                    <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="7" r="3"/><path d="M8 1v2M8 12v3M1 7h2M13 7h2"/></svg>
+                  </button>
+                  <button class="preview-exif-map-btn" id="openMapPickerBtn" title="" data-i18n-attr="title,aria-label" data-i18n="pickOnMap">
+                    <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2l-4 2-4-2v10l4 2 4-2 4 2V4l-4-2z"/><path d="M6 4v10M10 2v10"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Zoom controls (vertical bar on right side, shown only when preview is active) -->
+      <div class="preview-zoom-bar" id="previewZoomBar" inert aria-hidden="true">
+        <button type="button" class="zoom-label" id="zoomLabel" data-i18n="resetZoom" data-i18n-attr="title,aria-label" title="Reset zoom to 100%">100%</button>
+        <button class="zoom-btn" id="zoomInBtn" data-i18n="zoomIn" data-i18n-attr="title,aria-label" title="Zoom in">+</button>
+        <div id="zoomRange" role="slider" tabindex="0" aria-orientation="vertical" aria-valuemin="50" aria-valuemax="1200" aria-valuenow="100" aria-valuetext="100%" data-i18n="previewZoom" data-i18n-attr="aria-label"></div>
+        <button class="zoom-btn" id="zoomOutBtn" data-i18n="zoomOut" data-i18n-attr="title,aria-label" title="Zoom out">−</button>
+      </div>
+      <button class="preview-reset-view-btn" id="previewResetViewBtn" data-i18n="resetView" inert aria-hidden="true">Reset view</button>
+      <!-- Video playback bar (bottom center, shown only when a video is being previewed) -->
+      <div class="preview-video-bar" id="previewVideoBar" inert aria-hidden="true">
+        <button class="video-ctrl-btn" id="videoPlayPauseBtn" data-i18n="videoPlay" data-i18n-attr="title,aria-label" title="Play video">
+          <svg id="videoPlayIcon" viewBox="0 0 16 16" width="13" height="13" fill="currentColor"><path d="M3 2.5l10 5.5-10 5.5V2.5z"/></svg>
+          <svg id="videoPauseIcon" class="video-icon-hidden" viewBox="0 0 16 16" width="13" height="13" fill="currentColor"><rect x="3" y="2" width="3.5" height="12" rx="1"/><rect x="9.5" y="2" width="3.5" height="12" rx="1"/></svg>
+        </button>
+        <span class="video-time-label" id="videoCurrentTime">0:00</span>
+        <div class="video-seek-wrap">
+          <input type="range" class="video-seek-range" id="videoSeekRange" min="0" max="100" step="0.01" value="0" data-i18n="videoSeek" data-i18n-attr="aria-label">
+        </div>
+        <span class="video-time-label" id="videoDuration">0:00</span>
+        <!-- Volume control -->
+        <div class="video-volume-wrap">
+          <button class="video-ctrl-btn video-mute-btn" id="videoMuteBtn" data-i18n="videoMute" data-i18n-attr="title,aria-label" title="Mute video">
+            <svg id="videoVolIcon" viewBox="0 0 16 16" width="13" height="13" fill="currentColor">
+              <path d="M8 2.5L4.5 5.5H2v5h2.5L8 13.5V2.5z"/>
+              <path d="M10.5 5a4 4 0 0 1 0 6" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+            </svg>
+            <svg id="videoMuteIcon" class="video-icon-hidden" viewBox="0 0 16 16" width="13" height="13" fill="currentColor">
+              <path d="M8 2.5L4.5 5.5H2v5h2.5L8 13.5V2.5z"/>
+              <line x1="11" y1="6" x2="15" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="15" y1="6" x2="11" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <input type="range" class="video-volume-range" id="videoVolumeRange" min="0" max="1" step="0.05" value="1" data-i18n="videoVolume" data-i18n-attr="title,aria-label" title="Video volume">
+        </div>
+        <!-- Playback speed (preview only, not applied to export) -->
+        <select id="videoSpeedSelect" class="video-speed-select" data-i18n="videoSpeed" data-i18n-attr="title,aria-label" title="Video playback speed">
+          <option value="0.25">¼×</option>
+          <option value="0.5">½×</option>
+          <option value="1" selected>1×</option>
+          <option value="1.5">1.5×</option>
+          <option value="2">2×</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="main-resize-handle" id="mainResizeHandle" role="separator" tabindex="-1"
+         aria-orientation="horizontal" aria-valuemin="200" aria-valuemax="560" aria-valuenow="374"
+         data-i18n="resizePreviewPanel" data-i18n-attr="aria-label"></div>
+
+    <div class="photos-panel mobile-tab-panel" id="photosPanel">
+    <input type="file" id="mobileFileInput" multiple hidden tabindex="-1">
+    <!-- Empty hint (Photos tab on mobile when no files are loaded) -->
+    <div class="empty-hint" id="emptyHint">
+      <div class="empty-hint-inner">
+        <div class="empty-hint-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="m3 16 5-5 4 4 3-3 6 6"/><circle cx="15.5" cy="8.5" r="1.5"/></svg>
+        </div>
+        <div class="empty-hint-title" data-i18n="emptyPhotosTitle">No photos yet</div>
+        <button type="button" class="btn btn-primary btn-lg mobile-add-btn" id="mobileAddBtn" data-i18n="emptyChooseMedia">Choose photos or videos</button>
+        <div class="empty-hint-subtitle" data-i18n="emptyPrivacyNote">Processed on this device. Nothing is uploaded.</div>
+      </div>
+    </div>
+
+    <!-- Image Section (shown when files are loaded) -->
+    <div class="image-section is-hidden" id="imageSection">
+
+      <div class="section-header">
+        <div class="section-title-group">
+          <span class="section-title" data-i18n="imagesTitle">Images</span>
+          <span class="section-counter" id="imageCounter">
+            <span id="imageCounterVisual" aria-hidden="true"></span>
+            <span class="sr-only" id="imageCounterStatus" role="status" aria-live="polite" aria-atomic="true"></span>
+          </span>
+          <span class="section-estimate" id="batchEstimate"></span>
+        </div>
+        <div class="section-header-right">
+          <div class="card-size-bar" id="cardSizeBar" data-i18n="cardSize" data-i18n-attr="title" title="Photo card size">
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+              <rect x="1.5" y="1.5" width="5" height="5" rx="1"/><rect x="9.5" y="1.5" width="5" height="5" rx="1"/><rect x="1.5" y="9.5" width="5" height="5" rx="1"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/>
+            </svg>
+            <input type="range" id="cardSizeRange" min="120" max="320" step="20" value="200" data-i18n="cardSize" data-i18n-attr="aria-label">
+          </div>
+          <button type="button" class="btn btn-ghost" id="clearAllBtn" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l.8 12.5h9.4l.8-12.5"/></svg>
+            <span data-i18n="clearAll">Clear All</span>
+          </button>
+          <button type="button" class="btn btn-secondary" id="addMoreBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            <span data-i18n="addMore">Add</span>
+          </button>
+          <button type="button" class="btn btn-primary" id="downloadAllBtn" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 19.5h14"/></svg>
+            <span id="downloadAllLabel">Download All</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Export progress bar (shown during generation / ZIP creation) -->
+      <div id="exportProgress" class="export-progress is-hidden">
+        <div class="export-progress-header">
+          <span id="exportProgressLabel" class="export-progress-label">Processing…</span>
+          <span id="exportProgressPct" class="export-progress-pct">0%</span>
+          <button type="button" class="export-progress-cancel" id="cancelExportBtn" data-i18n="privacyCancel">Cancel</button>
+        </div>
+        <div id="exportProgressMeter" class="export-progress-track" role="progressbar" aria-labelledby="exportProgressLabel" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div id="exportProgressFill" class="export-progress-fill"></div>
+        </div>
+      </div>
+
+      <div id="imageGrid"></div>
+
+    </div>
+    </div><!-- /photos-panel -->
+    <span id="exportProgressStatus" class="sr-only" role="status" aria-live="polite"></span>
+  </main>
+
+</div><!-- /app-shell -->
+
+<!-- ─── Mobile Tab Bar ───────────────────────────────────────────────────────── -->
+<nav class="mobile-tab-bar" id="mobileTabBar" role="tablist" data-i18n="mobileNavigation" data-i18n-attr="aria-label">
+  <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="dropZone" tabindex="0" data-tab="preview" id="tabPreviewBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="14" rx="2"/><path d="M3 9h18M7 21h10"/></svg>
+    <span data-i18n="tabPreview">Preview</span>
+  </button>
+  <button class="tab-btn" role="tab" aria-selected="false" aria-controls="photosPanel" tabindex="-1" data-tab="photos" id="tabPhotosBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    <span data-i18n="tabPhotos">Photos</span>
+  </button>
+  <button class="tab-btn" role="tab" aria-selected="false" aria-controls="settingsPanel" tabindex="-1" data-tab="settings" id="tabSettingsBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"/><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
+    <span data-i18n="tabSettings">Settings</span>
+  </button>
+</nav>
+
+<!-- Scripts -->
+<script src="js/core-utils.js"></script>
+<script src="js/heif.js"></script>
+<script src="js/config.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/frame-engine.js"></script>
+<script src="js/app.js"></script>
+
+<!-- ─── Map Location Picker Modal ───────────────────────────────────────────── -->
+<div class="map-modal" id="mapPickerModal" role="dialog" aria-modal="true" aria-labelledby="mapPickerModalTitle" aria-describedby="mapPickerHelp">
+  <div class="map-modal-content">
+    <div class="map-modal-header">
+      <span class="map-modal-title" id="mapPickerModalTitle" data-i18n="pickOnMap">Pick Location on Map</span>
+      <button class="map-modal-close" id="mapPickerCloseBtn" data-i18n-attr="title,aria-label" data-i18n="close" title="Close">×</button>
+    </div>
+    <p id="mapPickerHelp" class="map-picker-help" data-i18n="mapKeyboardHelp">Use the arrow keys to move the map, then choose its center or click a point.</p>
+    <div id="mapPickerContainer" class="map-picker-container" tabindex="0" role="region"
+         aria-labelledby="mapPickerModalTitle" aria-describedby="mapPickerHelp"></div>
+    <div class="map-modal-footer">
+      <span id="mapPickerCoords" class="map-picker-coords" role="status" aria-live="polite" data-i18n="mapClickHint">Click on the map to select a location</span>
+      <button type="button" class="btn btn-secondary btn-sm" id="selectMapCenterBtn" data-i18n="mapSelectCenter">Use map center</button>
+      <button class="btn btn-primary btn-sm" id="confirmMapLocationBtn" data-i18n="mapConfirm">Set Location</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Location privacy consent ───────────────────────────────────────────── -->
+<div class="map-modal privacy-modal" id="locationPrivacyModal" role="dialog" aria-modal="true" aria-labelledby="locationPrivacyModalTitle" aria-describedby="locationPrivacyDescription">
+  <div class="map-modal-content privacy-modal-content">
+    <div class="map-modal-header">
+      <span class="map-modal-title" id="locationPrivacyModalTitle" data-i18n="privacyConsentTitle">Allow online location services?</span>
+      <button type="button" class="map-modal-close" id="locationPrivacyCloseBtn" data-i18n-attr="title,aria-label" data-i18n="close" title="Close" aria-label="Close">×</button>
+    </div>
+    <div class="privacy-modal-body" role="region" tabindex="0" aria-labelledby="locationPrivacyModalTitle">
+      <p id="locationPrivacyDescription" data-i18n="privacyConsentLead">Your photos and videos are never uploaded. If you continue, location data may be sent to the services below.</p>
+      <ul>
+        <li data-i18n="privacyConsentGeocode">Nominatim: latitude/longitude for place-name lookup</li>
+        <li data-i18n="privacyConsentMap">OpenStreetMap: map tiles; ipapi only if device location is unavailable</li>
+        <li data-i18n="privacyConsentMapbox">Mapbox (only with a token you add): latitude/longitude when generating a map overlay</li>
+      </ul>
+      <p class="privacy-modal-note" data-i18n="privacyConsentChoice">Choose access for this browser session or remember the choice on this device. You can revoke it from Customize.</p>
+    </div>
+    <div class="privacy-modal-actions">
+      <button type="button" class="btn btn-danger btn-sm" id="locationPrivacyRevokeBtn" data-i18n="privacyDisable">Disable</button>
+      <span class="privacy-modal-spacer"></span>
+      <button type="button" class="btn btn-secondary btn-sm" id="locationPrivacyCancelBtn" data-i18n="privacyCancel">Cancel</button>
+      <button type="button" class="btn btn-secondary btn-sm" id="locationPrivacyOnceBtn" data-i18n="privacyAllowOnce">Allow for this session</button>
+      <button type="button" class="btn btn-primary btn-sm" id="locationPrivacyAlwaysBtn" data-i18n="privacyAllowAlways">Always allow</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Destructive Action Confirmation ─────────────────────────────────────── -->
+<div class="map-modal confirm-modal" id="destructiveConfirmModal" role="alertdialog" aria-modal="true" aria-labelledby="destructiveConfirmTitle" aria-describedby="destructiveConfirmMessage">
+  <div class="map-modal-content confirm-modal-content">
+    <div class="confirm-modal-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6.5 7l.8 13h9.4l.8-13M10 11v5M14 11v5"/></svg>
+    </div>
+    <div class="confirm-modal-copy">
+      <div class="map-modal-title" id="destructiveConfirmTitle" data-i18n="deleteConfirmTitle">Delete this photo?</div>
+      <p id="destructiveConfirmMessage" data-i18n="confirmDeleteItem">This item will be removed from the current workspace.</p>
+    </div>
+    <div class="confirm-modal-actions">
+      <button type="button" class="btn btn-secondary" id="destructiveConfirmCancelBtn" data-i18n="privacyCancel">Cancel</button>
+      <button type="button" class="btn btn-danger" id="destructiveConfirmAcceptBtn" data-i18n="deleteConfirmAction">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Share App Modal ───────────────────────────────────────────────────────── -->
+<div class="map-modal" id="shareAppModal" role="dialog" aria-modal="true" aria-labelledby="shareAppModalTitle" aria-describedby="shareAppDescription">
+  <div class="map-modal-content share-modal-content">
+    <div class="map-modal-header">
+      <span class="map-modal-title" id="shareAppModalTitle" data-i18n="shareAppTitle">Share this app</span>
+      <button class="map-modal-close" id="shareAppCloseBtn" data-i18n-attr="title,aria-label" data-i18n="close" title="Close">×</button>
+    </div>
+    <div class="share-modal-body">
+      <p class="share-modal-sub" id="shareAppDescription" data-i18n="shareAppSub">Share InstaFrame with your friends.</p>
+      <div class="share-grid">
+        <a class="btn btn-secondary btn-sm" id="shareXBtn" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+        <a class="btn btn-secondary btn-sm" id="shareFacebookBtn" target="_blank" rel="noopener noreferrer">Facebook</a>
+        <a class="btn btn-secondary btn-sm" id="shareLineBtn" target="_blank" rel="noopener noreferrer">LINE</a>
+        <a class="btn btn-secondary btn-sm" id="shareLinkedInBtn" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      </div>
+      <div class="share-copy-row">
+        <label class="sr-only" for="shareUrlInput" data-i18n="shareUrlLabel">Share URL</label>
+        <input id="shareUrlInput" class="setting-text-input" readonly>
+        <button class="btn btn-primary btn-sm" id="copyShareUrlBtn" data-i18n="copyLink">Copy link</button>
+      </div>
+      <p id="shareModalStatus" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+    </div>
+  </div>
+</div>
+</body>
+</html>
