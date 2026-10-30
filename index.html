@@ -5,9 +5,9 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <meta name="description" content="InstaFrame — Batch EXIF photo frame generator. Add beautiful frames with camera metadata to your photos.">
-  <meta name="theme-color" content="#e8e5df">
+  <meta name="theme-color" content="#090b0c">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; font-src 'self'; img-src 'self' data: blob: https://api.mapbox.com https://tile.openstreetmap.org https://*.tile.openstreetmap.org; media-src 'self' blob:; connect-src 'self' https://nominatim.openstreetmap.org https://ipapi.co https://api.mapbox.com;">
-  <title>InstaFrame by lingmulongtai</title>
+  <title>InstaFrame Lab</title>
   <link rel="icon" type="image/svg+xml" href="photo-camera-svgrepo-com.svg">
   <meta property="og:title" content="InstaFrame">
   <meta property="og:description" content="Add beautiful EXIF frames to your photos in batch. Free, local, private.">
@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="vendor/fonts/fonts.css">
 
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/lab.css">
 
 </head>
 <body data-mobile-tab="preview" data-workspace="empty">
@@ -36,7 +37,7 @@
         <span class="brand-mark" aria-hidden="true"></span>
         <span class="logo">
           <span class="logo-main" data-i18n="appTitleMain">InstaFrame</span>
-          <span class="logo-by" data-i18n="appTitleBy">by lingmulongtai</span>
+          <span class="logo-by" data-i18n="labVersion">UI LAB · EXPERIMENTAL</span>
         </span>
       </div>
       <div class="sidebar-actions">
@@ -800,7 +801,18 @@
 
   <!-- ─── Main ─────────────────────────────────────────────────────────────── -->
   <main class="main">
-    <h1 class="sr-only" data-i18n="appTitleMain">InstaFrame</h1>
+    <header class="lab-header">
+      <div class="lab-heading">
+        <div class="lab-heading-mark" aria-hidden="true"><span></span></div>
+        <div>
+          <div class="lab-heading-kicker" data-i18n="labVersion">UI LAB · EXPERIMENTAL</div>
+          <h1>InstaFrame <span>Lab</span></h1>
+        </div>
+      </div>
+      <a class="lab-stable-link" href="https://lingmulongtai.github.io/InstaFrame/" target="_blank" rel="noopener noreferrer">
+        <span data-i18n="labStable">Stable version</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
+      </a>
+    </header>
 
     <!-- Live Preview + Drop Zone -->
     <div class="preview-area mobile-tab-panel" id="dropZone">
