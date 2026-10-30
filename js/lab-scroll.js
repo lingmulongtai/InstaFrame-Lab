@@ -30,14 +30,18 @@
     panel.addEventListener('wheel', event => {
       const mode = event.deltaMode;
       const y = event.deltaY;
-      // Pixel-mode trackpads remain native. Common mouse wheel notches are
-      // whole 100 or 120 pixel steps in Chromium and Windows browsers.
+      // Small and fractional pixel movements remain native. Common mouse wheel
+      // notches are whole 100 or 120 pixel steps in Chromium and Windows browsers.
       const mouseStep = mode !== WheelEvent.DOM_DELTA_PIXEL ||
         (Number.isInteger(y) && Math.abs(y) >= 100 && (Math.abs(y) % 100 === 0 || Math.abs(y) % 120 === 0));
+      if (!mouseStep || reducedMotion.matches || !event.cancelable || event.ctrlKey || event.metaKey || event.shiftKey ||
+          Math.abs(event.deltaX) > Math.abs(y)) {
+        cancel();
+        return;
+      }
       const nestedScroller = event.composedPath().some(node => node instanceof HTMLElement && node !== panel &&
         panel.contains(node) && node.scrollHeight > node.clientHeight && /^(auto|scroll)$/.test(getComputedStyle(node).overflowY));
-      if (!mouseStep || reducedMotion.matches || !event.cancelable || event.ctrlKey || event.metaKey || event.shiftKey ||
-          Math.abs(event.deltaX) > Math.abs(y) || nestedScroller) {
+      if (nestedScroller) {
         cancel();
         return;
       }
