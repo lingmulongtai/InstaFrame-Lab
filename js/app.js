@@ -676,7 +676,7 @@ function setupLocationPrivacy() {
 }
 
 // ─── Mapbox token & client-side usage guard ───────────────────────────────────
-const MAPBOX_USAGE_KEY = 'instaframe_mb_usage_v2';
+const MAPBOX_USAGE_KEY = 'instaframe_lab_mb_usage_v2';
 let _mapboxUnavailableNotified = false;
 
 function _isValidMapboxPublicToken(token) {
@@ -1695,7 +1695,7 @@ function _syncTextStyleNames() {
 }
 
 // ─── Font popularity ──────────────────────────────────────────────────────────
-const FONT_USAGE_KEY = 'instaframe_font_usage';
+const FONT_USAGE_KEY = 'instaframe_lab_font_usage';
 const ALL_FONTS = [
   'Inter', 'Montserrat', 'DM Sans', 'Lato', 'Poppins', 'Raleway', 'Nunito',
   'Josefin Sans', 'Oswald', 'Work Sans',
@@ -3492,7 +3492,7 @@ function _retainedOutputBytes(excludeItem = null) {
 }
 
 // ─── Settings persistence ─────────────────────────────────────────────────────
-const SETTINGS_KEY = 'instaframe_settings';
+const SETTINGS_KEY = 'instaframe_lab_settings';
 
 function saveSettings() {
   try {
@@ -7686,7 +7686,7 @@ function capitalize(s) {
 }
 
 // ─── Preferences (theme / layout) ────────────────────────────────────────────
-const PREFS_KEY = 'instaframe_prefs';
+const PREFS_KEY = 'instaframe_lab_prefs';
 function loadPrefs() { try { return JSON.parse(localStorage.getItem(PREFS_KEY)) || {}; } catch { return {}; } }
 function savePrefs(p)  { try { localStorage.setItem(PREFS_KEY, JSON.stringify(p)); } catch {} }
 
@@ -7757,7 +7757,7 @@ function setupCustomizePanel() {
   const prefs = loadPrefs();
 
   // ── Theme ──────────────────────────────────────────────────────────────────
-  const savedTheme = prefs.theme || 'soft-white';
+  const savedTheme = prefs.theme || 'dark';
   applyTheme(savedTheme);
   document.querySelectorAll('input[name="themeChoice"]').forEach(r => {
     if (r.value === savedTheme) r.checked = true;
@@ -7829,7 +7829,7 @@ function setupCustomizePanel() {
     });
   }
   // Restore saved accent (default to cyan)
-  const effectiveAccent = savedAccent || '#08798f';
+  const effectiveAccent = savedAccent || '#bdd7e3';
   _applyAccentColor(effectiveAccent);
   _activateSwatch(effectiveAccent);
 
@@ -8278,10 +8278,10 @@ function _restorePageResources() {
 // Apply theme & layout immediately (before paint) to avoid flash
 ;(function() {
   const p = loadPrefs();
-  applyTheme(p.theme || 'soft-white');
+  applyTheme(p.theme || 'dark');
   applyLayout(p.layout || 'left');
   applyEditorSize(p.editorSize || 'comfortable');
-  _applyAccentColor(p.accentColor || '#08798f');
+  _applyAccentColor(p.accentColor || '#bdd7e3');
 })();
 
 document.addEventListener('DOMContentLoaded', () => {

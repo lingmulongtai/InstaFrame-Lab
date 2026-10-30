@@ -678,7 +678,7 @@ test('realtime fallback refuses silent output when audio capture is unavailable'
 
 test('the completed item retains the realtime fallback and reduced-size notice', async ({ page }) => {
   await page.goto('/');
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'en'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'en'));
   await page.reload();
   await page.locator('#fileInput').setInputFiles(path.join(__dirname, 'offline-60fps.mp4'));
   await expect(page.locator('.image-card')).toHaveCount(1);
@@ -696,7 +696,7 @@ test('the completed item retains the realtime fallback and reduced-size notice',
 
 test('reduced video dimensions and memory fallback remain visible after export', async ({ page }) => {
   await page.goto('/');
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'en'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'en'));
   await page.reload();
   await page.locator('#fileInput').setInputFiles(path.join(__dirname, 'offline-60fps.mp4'));
   await expect.poll(() => page.locator('#livePreviewVideo').evaluate(video => video.videoWidth)).toBeGreaterThan(0);

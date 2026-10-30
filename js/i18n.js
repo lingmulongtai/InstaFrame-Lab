@@ -6,8 +6,10 @@ const I18N = {
     appTitle: 'InstaFrame by lingmulongtai',
     appTitleMain: 'InstaFrame',
     appTitleBy: 'by lingmulongtai',
+    labVersion: 'UI LAB · EXPERIMENTAL',
+    labStable: 'Stable version',
     appSubtitle: 'EXIF photo frame generator',
-    dropZoneText: 'Drop photos here',
+    dropZoneText: 'Give your moments a frame.',
     settingsTitle: 'Frame Settings',
     frameColor: 'Frame Color',
     colorWhite: 'White',
@@ -332,8 +334,10 @@ const I18N = {
     appTitle: 'InstaFrame by lingmulongtai',
     appTitleMain: 'InstaFrame',
     appTitleBy: 'by lingmulongtai',
+    labVersion: 'UI LAB · EXPERIMENTAL',
+    labStable: '安定版へ',
     appSubtitle: 'EXIF photo frame generator',
-    dropZoneText: 'ここに写真をドロップ',
+    dropZoneText: '写真と動画に、余白を。',
     settingsTitle: 'フレーム設定',
     frameColor: 'フレームカラー',
     colorWhite: 'ホワイト',
@@ -656,7 +660,7 @@ const I18N = {
   },
 };
 
-const LANG_STORAGE_KEY = 'instaframe_lang';
+const LANG_STORAGE_KEY = 'instaframe_lab_lang';
 
 function detectInitialLang() {
   let saved = null;
