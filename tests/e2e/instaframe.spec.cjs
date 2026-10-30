@@ -124,6 +124,23 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/');
 });
 
+test('lab settings leave stable-site storage untouched on the same origin', async ({ page }) => {
+  await page.evaluate(() => {
+    localStorage.setItem('instaframe_settings', '{"frameColor":"#123456"}');
+    localStorage.setItem('instaframe_prefs', '{"theme":"light"}');
+    localStorage.setItem('instaframe_lang', 'ja');
+    localStorage.setItem('instaframe_lab_lang', 'en');
+  });
+  await page.reload();
+  await page.locator('#langToggleBtn').click();
+  const values = await page.evaluate(() => ({
+    settings: localStorage.getItem('instaframe_settings'),
+    prefs: localStorage.getItem('instaframe_prefs'),
+    lang: localStorage.getItem('instaframe_lang'),
+    labLang: localStorage.getItem('instaframe_lab_lang'),
+  }));
+  expect(values).toEqual({ settings: '{"frameColor":"#123456"}', prefs: '{"theme":"light"}', lang: 'ja', labLang: 'ja' });
+});
 test('initial page and privacy consent modal have no axe violations', async ({ page }) => {
   await expect(page.locator('.preview-empty-cta')).toBeVisible();
   await expect(page.locator('#samplePrint')).toBeVisible();
@@ -223,7 +240,7 @@ test('every accent choice keeps selected controls at WCAG contrast', async ({ pa
 });
 
 test('initial translated UI exposes the matching document language', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'ja'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'ja'));
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('lang', 'ja');
   await expect(page.locator('#dropZone')).toContainText('ここに写真をドロップ');
@@ -239,7 +256,7 @@ test('initial translated UI exposes the matching document language', async ({ pa
   await page.evaluate(() => window.showProgress('処理中…', 0));
   await expect(page.locator('#cancelExportBtn')).toHaveAccessibleName('キャンセル');
 
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'en'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'en'));
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(page.locator('#dropZone')).toContainText('Drop photos here');
@@ -256,8 +273,8 @@ test('initial translated UI exposes the matching document language', async ({ pa
 
 test('first paint stays hidden until translations and saved preferences are applied', async ({ page }) => {
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_lang', 'ja');
-    localStorage.setItem('instaframe_prefs', JSON.stringify({ theme: 'dark', layout: 'right' }));
+    localStorage.setItem('instaframe_lab_lang', 'ja');
+    localStorage.setItem('instaframe_lab_prefs', JSON.stringify({ theme: 'dark', layout: 'right' }));
     window.__previousDocument = true;
   });
   let releaseApp;
@@ -306,7 +323,7 @@ test('the page still reveals itself when the app script cannot load', async ({ p
 });
 
 test('card actions identify their target file in both languages', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'en'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'en'));
   await page.reload();
   await uploadJpegs(page, 2);
 
@@ -321,7 +338,7 @@ test('card actions identify their target file in both languages', async ({ page 
 });
 
 test('dynamic color and location controls expose localized group names', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'en'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'en'));
   await page.reload();
   await page.locator('#showLocation').evaluate(element => {
     element.checked = true;
@@ -351,8 +368,8 @@ test('a saved map overlay stays on without a Mapbox token and uses OpenStreetMap
     });
   });
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
-    localStorage.setItem('instaframe_settings', JSON.stringify({
+    localStorage.setItem('instaframe_lab_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
+    localStorage.setItem('instaframe_lab_settings', JSON.stringify({
       showLocation: true,
       showMapOverlay: true,
     }));
@@ -378,7 +395,7 @@ test('a saved map overlay is normalized off without location consent', async ({ 
     if (request.url().includes('tile.openstreetmap.org')) tileRequests.push(request.url());
   });
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_settings', JSON.stringify({ showLocation: true, showMapOverlay: true }));
+    localStorage.setItem('instaframe_lab_settings', JSON.stringify({ showLocation: true, showMapOverlay: true }));
   });
   await page.reload();
   await expect(page.locator('#showMapOverlay')).not.toBeChecked();
@@ -388,7 +405,7 @@ test('a saved map overlay is normalized off without location consent', async ({ 
 });
 
 test('privacy settings distinguish a site Mapbox token from a device token', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'en'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'en'));
   await page.reload();
   await page.evaluate(() => {
     window.INSTAFRAME_CONFIG = Object.freeze({
@@ -409,7 +426,7 @@ test('privacy settings distinguish a site Mapbox token from a device token', asy
   expect(await page.evaluate(() => window.getMapboxToken())).toBeNull();
 
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_prefs', JSON.stringify({
+    localStorage.setItem('instaframe_lab_prefs', JSON.stringify({
       locationNetworkConsent: 'always',
       mapboxPublicToken: 'pk.device.test',
     }));
@@ -427,8 +444,8 @@ test('radio choices expose their localized setting group names', async ({ page }
   };
 
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_lang', 'en');
-    localStorage.setItem('instaframe_prefs', JSON.stringify({
+    localStorage.setItem('instaframe_lab_lang', 'en');
+    localStorage.setItem('instaframe_lab_prefs', JSON.stringify({
       locationNetworkConsent: 'always',
       mapboxPublicToken: 'pk.test.test',
     }));
@@ -482,7 +499,7 @@ test('the editor remains usable when browser storage is unavailable', async ({ p
 });
 
 test('in-page language changes refresh generated form control names', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'en'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'en'));
   await page.reload();
   await expect(page.locator('#thicknessRange')).toHaveAccessibleName('Frame Thickness');
   await expect(page.locator('#fontFamily')).toHaveAccessibleName('Font');
@@ -551,7 +568,7 @@ test('preview controls leave the tab order until their media state is visible', 
 });
 
 test('workspace resize separators support keyboard control and expose their values', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'en'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'en'));
   await page.reload();
   await uploadJpegs(page);
 
@@ -572,7 +589,7 @@ test('workspace resize separators support keyboard control and expose their valu
   await mainHandle.press('ArrowDown');
   await expect(mainHandle).toHaveAttribute('aria-valuenow', String(previewBefore + 10));
 
-  const prefs = await page.evaluate(() => JSON.parse(localStorage.getItem('instaframe_prefs')));
+  const prefs = await page.evaluate(() => JSON.parse(localStorage.getItem('instaframe_lab_prefs')));
   expect(prefs.sidebarWidth).toBe(sidebarBefore + 10);
   expect(prefs.previewHeight).toBe(`${previewBefore + 10}px`);
 
@@ -1115,7 +1132,7 @@ test('pagehide commits a pending live EXIF edit before releasing preview resourc
 test('BFCache suspension closes the map picker before releasing its map', async ({ page }) => {
   await page.route(/https:\/\/[abc]\.tile\.openstreetmap\.org\//, route => route.abort());
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
+    localStorage.setItem('instaframe_lab_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
   });
   await page.reload();
   await page.evaluate(() => {
@@ -1341,7 +1358,7 @@ test('BFCache restore restarts a video thumbnail interrupted during suspension',
 });
 
 test('translated dynamic controls and location icon radio state stay synchronized', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'en'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'en'));
   await page.reload();
   await page.locator('label[for="bg-blur"]').click();
   await expect(page.locator('#blurRadiusRange')).toHaveAccessibleName('Radius');
@@ -1364,7 +1381,7 @@ test('translated dynamic controls and location icon radio state stay synchronize
 });
 
 test('color-only controls expose localized accessible names', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'en'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'en'));
   await page.reload();
   await page.locator('#customizeBtn').click();
   await expect(page.locator('.accent-blue')).toHaveAccessibleName('Blue accent');
@@ -1380,7 +1397,7 @@ test('color-only controls expose localized accessible names', async ({ page }) =
 });
 
 test('language switching preserves card identity, selection, and video thumbnails', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'en'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'en'));
   await page.reload();
   await page.locator('#fileInput').setInputFiles([
     {
@@ -1467,7 +1484,7 @@ test('failed video thumbnail drawing releases decoded image and framing canvas',
 });
 
 test('language switching retranslates preview errors without marking the video failed', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'en'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'en'));
   await page.reload();
   await page.locator('#fileInput').setInputFiles({
     name: 'language-error.webm',
@@ -1629,7 +1646,7 @@ test('settings changes preserve a generated video thumbnail while re-encoding is
 });
 
 test('export errors reveal details on the card and clear on retry', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'en'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'en'));
   await page.reload();
   await uploadJpegs(page);
   await page.evaluate(() => {
@@ -1685,7 +1702,7 @@ test('card progress remains described without competing with the export live reg
 });
 
 test('share dialog supports axe, Escape, and focus return', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'en'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'en'));
   await page.reload();
   await page.locator('#shareAppBtn').focus();
   await page.locator('#shareAppBtn').press('Enter');
@@ -1728,7 +1745,7 @@ test('share dialog supports axe, Escape, and focus return', async ({ page }) => 
 
 test('legacy share copying reports failure and removes its temporary control', async ({ page }) => {
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_lang', 'en');
+    localStorage.setItem('instaframe_lab_lang', 'en');
     Object.defineProperty(navigator, 'clipboard', {
       configurable: true,
       value: undefined,
@@ -2037,7 +2054,7 @@ test('concurrent location consent requests share one decision and focus return',
 });
 
 test('location consent wording matches its browser-session lifetime', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'en'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'en'));
   await page.reload();
   await page.locator('#customizeBtn').click();
   await page.locator('#manageLocationPrivacyBtn').click();
@@ -2050,7 +2067,7 @@ test('location consent wording matches its browser-session lifetime', async ({ p
   expect(await page.evaluate(() => window.requestLocationNetworkConsent())).toBe(true);
   await expect(page.locator('#locationPrivacyModal')).not.toHaveClass(/open/);
 
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'ja'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'ja'));
   await page.reload();
   await page.locator('#customizeBtn').click();
   await page.locator('#manageLocationPrivacyBtn').click();
@@ -2353,7 +2370,7 @@ test('output setting changes create a new undo branch', async ({ page }) => {
 
 test('redo cannot restore a map overlay after location access is revoked', async ({ page }) => {
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_prefs', JSON.stringify({
+    localStorage.setItem('instaframe_lab_prefs', JSON.stringify({
       locationNetworkConsent: 'always',
       mapboxPublicToken: 'pk.test.history',
     }));
@@ -2381,7 +2398,7 @@ test('redo cannot restore a map overlay after location access is revoked', async
   await expect(page.locator('#mapOverlayPositionRow')).toHaveClass(/is-hidden/);
   expect(await page.evaluate(() => ({
     consent: window.hasLocationNetworkConsent(),
-    savedOverlay: JSON.parse(localStorage.getItem('instaframe_settings')).showMapOverlay,
+    savedOverlay: JSON.parse(localStorage.getItem('instaframe_lab_settings')).showMapOverlay,
   }))).toEqual({ consent: false, savedOverlay: false });
 });
 
@@ -2562,7 +2579,7 @@ test('photo export corrects a wrong Blob MIME when the requested signature is va
 });
 
 test('batch download reports items missing from a partial ZIP', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'en'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'en'));
   await page.reload();
   await uploadJpegs(page, 2);
   await page.evaluate(() => {
@@ -2674,8 +2691,8 @@ test('supported video export selection survives a page reload', async ({ page })
   const savedChoice = choices.at(-1);
 
   await page.evaluate(value => {
-    const saved = JSON.parse(localStorage.getItem('instaframe_settings') || '{}');
-    localStorage.setItem('instaframe_settings', JSON.stringify({
+    const saved = JSON.parse(localStorage.getItem('instaframe_lab_settings') || '{}');
+    localStorage.setItem('instaframe_lab_settings', JSON.stringify({
       ...saved,
       exportVideoFormat: value,
     }));
@@ -2724,7 +2741,7 @@ test('video memory priority persists and reaches the encoder', async ({ page }) 
 });
 
 test('video bitrate preserves existing choices and supports source estimates', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('instaframe_settings', JSON.stringify({ exportVideoBitrate: 8 })));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_settings', JSON.stringify({ exportVideoBitrate: 8 })));
   await page.reload();
   await expect(page.locator('input[name="exportVideoBitrate"]:checked')).toHaveValue('8');
   await page.locator('label[for="vbr-source"]').click();
@@ -2750,7 +2767,7 @@ test('invalid persisted enum values cannot break application startup', async ({ 
   page.on('pageerror', error => pageErrors.push(error.message));
   await page.evaluate(() => {
     const invalid = '\"]';
-    localStorage.setItem('instaframe_settings', JSON.stringify({
+    localStorage.setItem('instaframe_lab_settings', JSON.stringify({
       textColorMode: invalid,
       locationPosition: invalid,
       mapOverlayPosition: invalid,
@@ -2984,7 +3001,7 @@ test('aggregate source bytes reject only files beyond the 512 MiB workspace limi
 });
 
 test('unsupported media is rejected visibly without hiding accepted files', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'en'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'en'));
   await page.reload();
 
   await page.locator('#fileInput').setInputFiles({
@@ -3007,7 +3024,7 @@ test('unsupported media is rejected visibly without hiding accepted files', asyn
   await expect(page.locator('.image-card')).toHaveCount(1);
   await expect(page.locator('#toast')).toContainText(/1 file.*unsupported media type/i);
 
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'ja'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'ja'));
   await page.reload();
   await page.locator('#fileInput').setInputFiles({
     name: 'notes.pdf',
@@ -4342,7 +4359,7 @@ test('photo output setting changes abort active ZIP encodes before stale bytes d
 
 test('resolved device locations abort an active ZIP before stale output can download', async ({ page }) => {
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
+    localStorage.setItem('instaframe_lab_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
   });
   await page.reload();
   await page.route('https://nominatim.openstreetmap.org/**', route => route.fulfill({
@@ -4609,7 +4626,7 @@ test('removing a photo during its final encode discards the stale download', asy
 });
 
 test('batch generation reports failures and retries failed items', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'en'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'en'));
   await page.reload();
   await uploadJpegs(page, 2);
   await page.evaluate(() => {
@@ -4867,7 +4884,7 @@ test('switching photos aborts stale live-preview image decoders', async ({ page 
 });
 
 test('a stalled photo export decoder times out, revokes its URL, and restores controls', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'en'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'en'));
   await page.reload();
   await uploadJpegs(page);
   await page.evaluate(() => {
@@ -4961,7 +4978,7 @@ test('font loading respects cancellation and falls back after its guard', async 
 });
 
 test('Japanese preview quality labels change raster density without moving composition', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'ja'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'ja'));
   await page.reload();
   await uploadJpegs(page);
   const canvas = page.locator('#livePreviewCanvas');
@@ -7500,7 +7517,7 @@ test('live video preview draws from decoded-frame callbacks when available', asy
 });
 
 test('social presets are labelled and enforce portrait composition', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'ja'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'ja'));
   await page.reload();
   await uploadJpegs(page);
   await expect(page.locator('.ratio-pill-featured')).toContainText('Instagram投稿');
@@ -7541,7 +7558,7 @@ test('GPS import sends no coordinates until explicit consent', async ({ page }) 
 
 test('device location stays bound to the photo that requested it', async ({ page }) => {
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
+    localStorage.setItem('instaframe_lab_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
   });
   await page.reload();
   await page.route('https://nominatim.openstreetmap.org/**', route => route.fulfill({
@@ -7573,7 +7590,7 @@ test('device location stays bound to the photo that requested it', async ({ page
 
 test('a pending EXIF edit cannot overwrite a newly resolved device location', async ({ page }) => {
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
+    localStorage.setItem('instaframe_lab_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
   });
   await page.reload();
   await page.route('https://nominatim.openstreetmap.org/**', route => route.fulfill({
@@ -7607,7 +7624,7 @@ test('a pending EXIF edit cannot overwrite a newly resolved device location', as
 
 test('an older device-location callback cannot overwrite an explicit map choice', async ({ page }) => {
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
+    localStorage.setItem('instaframe_lab_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
   });
   await page.reload();
   await page.route(/https:\/\/[abc]\.tile\.openstreetmap\.org\//, route => route.abort());
@@ -7661,7 +7678,7 @@ test('an older device-location callback cannot overwrite an explicit map choice'
 test('removing a photo aborts its in-flight place-name lookup', async ({ page }) => {
   await uploadJpegs(page, 1, true);
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
+    localStorage.setItem('instaframe_lab_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
     const nativeFetch = window.fetch;
     const nativeShowToast = window.showToast;
     window.__removedLocationToasts = [];
@@ -7699,7 +7716,7 @@ test('removing a photo aborts its in-flight place-name lookup', async ({ page })
 test('clearing all photos aborts in-flight location operations', async ({ page }) => {
   await uploadJpegs(page, 1, true);
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
+    localStorage.setItem('instaframe_lab_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
     const nativeFetch = window.fetch;
     window.__clearedLocationSuccess = false;
     const nativeShowToast = window.showToast;
@@ -7738,7 +7755,7 @@ test('clearing all photos aborts in-flight location operations', async ({ page }
 test('clearing all photos invalidates a late device-location callback', async ({ page }) => {
   await uploadJpegs(page);
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
+    localStorage.setItem('instaframe_lab_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
     window.__clearedDeviceLookupCalls = 0;
     const nativeFetch = window.fetch;
     window.fetch = (input, options) => {
@@ -7769,7 +7786,7 @@ test('clearing all photos invalidates a late device-location callback', async ({
 test('removed device-location targets skip reverse geocoding', async ({ page }) => {
   await uploadJpegs(page);
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
+    localStorage.setItem('instaframe_lab_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
     window.__removedDeviceLookupCalls = 0;
     const nativeFetch = window.fetch;
     window.fetch = (input, options) => {
@@ -7798,7 +7815,7 @@ test('removed device-location targets skip reverse geocoding', async ({ page }) 
 
 test('location requests time out instead of waiting indefinitely', async ({ page }) => {
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
+    localStorage.setItem('instaframe_lab_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
   });
   await page.reload();
 
@@ -7835,7 +7852,7 @@ test('location requests time out instead of waiting indefinitely', async ({ page
 
 test('revoking location consent aborts an in-flight reverse geocode request', async ({ page }) => {
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
+    localStorage.setItem('instaframe_lab_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
   });
   await page.reload();
   await page.evaluate(() => {
@@ -7891,7 +7908,7 @@ test('revoking location consent cancels an in-flight Mapbox image load', async (
     });
   });
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_prefs', JSON.stringify({
+    localStorage.setItem('instaframe_lab_prefs', JSON.stringify({
       locationNetworkConsent: 'always',
       mapboxPublicToken: 'pk.test.test',
     }));
@@ -7921,7 +7938,7 @@ test('revoking location consent cancels an in-flight Mapbox image load', async (
 
 test('a stalled Mapbox image times out and releases its source', async ({ page }) => {
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_prefs', JSON.stringify({
+    localStorage.setItem('instaframe_lab_prefs', JSON.stringify({
       locationNetworkConsent: 'always',
       mapboxPublicToken: 'pk.test.test',
     }));
@@ -7958,7 +7975,7 @@ test('a stalled Mapbox image times out and releases its source', async ({ page }
 
 test('completed Mapbox cache releases sources across every invalidation path', async ({ page }) => {
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_prefs', JSON.stringify({
+    localStorage.setItem('instaframe_lab_prefs', JSON.stringify({
       locationNetworkConsent: 'always',
       mapboxPublicToken: 'pk.test.test',
     }));
@@ -8005,7 +8022,7 @@ test('completed Mapbox cache releases sources across every invalidation path', a
   expect(await page.evaluate(() => window.__cachedMapImages.at(-1).hasAttribute('src'))).toBe(false);
 
   await page.evaluate(async () => {
-    localStorage.setItem('instaframe_prefs', JSON.stringify({
+    localStorage.setItem('instaframe_lab_prefs', JSON.stringify({
       locationNetworkConsent: 'always',
       mapboxPublicToken: 'pk.test.pagehide',
     }));
@@ -8017,7 +8034,7 @@ test('completed Mapbox cache releases sources across every invalidation path', a
 
 test('concurrent identical Mapbox loads share one cached image and release the duplicate', async ({ page }) => {
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_prefs', JSON.stringify({
+    localStorage.setItem('instaframe_lab_prefs', JSON.stringify({
       locationNetworkConsent: 'always',
       mapboxPublicToken: 'pk.test.concurrent',
     }));
@@ -8066,11 +8083,11 @@ test('concurrent identical Mapbox loads share one cached image and release the d
 test('failed Mapbox requests still consume the local safety limit before OpenStreetMap takes over', async ({ page }) => {
   await page.evaluate(() => {
     const day = new Date().toISOString().slice(0, 10);
-    localStorage.setItem('instaframe_prefs', JSON.stringify({
+    localStorage.setItem('instaframe_lab_prefs', JSON.stringify({
       locationNetworkConsent: 'always',
       mapboxPublicToken: 'pk.test.test',
     }));
-    localStorage.setItem('instaframe_mb_usage_v2', JSON.stringify({
+    localStorage.setItem('instaframe_lab_mb_usage_v2', JSON.stringify({
       day,
       month: day.slice(0, 7),
       dayCount: 99,
@@ -8096,7 +8113,7 @@ test('failed Mapbox requests still consume the local safety limit before OpenStr
     const first = await window._fetchMapOverlayImage(35.0116, 135.7681);
     const tilesAfterFirst = tileRequests;
     const second = await window._fetchMapOverlayImage(35.0117, 135.7682);
-    const usage = JSON.parse(localStorage.getItem('instaframe_mb_usage_v2'));
+    const usage = JSON.parse(localStorage.getItem('instaframe_lab_mb_usage_v2'));
     return {
       first,
       second,
@@ -8244,7 +8261,7 @@ test('map picker exposes accessible busy states and coalesces place-name lookup'
   });
   await page.route(/https:\/\/[abc]\.tile\.openstreetmap\.org\//, route => route.abort());
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
+    localStorage.setItem('instaframe_lab_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
   });
   await page.reload();
   await page.evaluate(() => {
@@ -8340,7 +8357,7 @@ test('map picker exposes accessible busy states and coalesces place-name lookup'
 test('closing the map picker aborts its IP fallback and releases the map', async ({ page }) => {
   await page.route(/https:\/\/[abc]\.tile\.openstreetmap\.org\//, route => route.abort());
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
+    localStorage.setItem('instaframe_lab_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
   });
   await page.reload();
   await page.evaluate(() => {
@@ -8378,8 +8395,8 @@ test('invalid IP fallback coordinates leave the map usable without an unhandled 
     body: JSON.stringify({ latitude: 'invalid', longitude: 'also-invalid' }),
   }));
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_lang', 'en');
-    localStorage.setItem('instaframe_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
+    localStorage.setItem('instaframe_lab_lang', 'en');
+    localStorage.setItem('instaframe_lab_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
   });
   await page.reload();
   await page.evaluate(() => {
@@ -8446,7 +8463,7 @@ test('long localized error toasts wrap inside mobile safe areas', async ({ page 
   ];
 
   for (const { lang, name } of cases) {
-    await page.evaluate(value => localStorage.setItem('instaframe_lang', value), lang);
+    await page.evaluate(value => localStorage.setItem('instaframe_lab_lang', value), lang);
     await page.reload();
     await page.evaluate(() => {
       const root = document.documentElement.style;
@@ -8841,7 +8858,7 @@ test('short landscape map picker keeps its map and confirmation actions reachabl
     body: JSON.stringify({ address: { city: 'Kyoto', country: 'Japan' } }),
   }));
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
+    localStorage.setItem('instaframe_lab_prefs', JSON.stringify({ locationNetworkConsent: 'always' }));
   });
   await page.setViewportSize({ width: 667, height: 240 });
   await page.reload();
@@ -9213,7 +9230,7 @@ test('failed live video previews release source, frame callback, and canvas reso
 });
 
 test('video controls announce their current action and restore audible volume', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'ja'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'ja'));
   await page.reload();
   await page.locator('#fileInput').setInputFiles({
     name: 'controls.webm',
@@ -9591,7 +9608,7 @@ test('WebM video export preserves an input audio track', async ({ page }) => {
 // ─── Font picker, text styles, HEIC and spatial photos ─────────────────────────
 
 test('the font picker draws each name in its own typeface and loads faces only when opened', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'en'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'en'));
   await page.reload();
   const woff2Requests = [];
   page.on('request', request => {
@@ -9631,8 +9648,8 @@ test('the font picker draws each name in its own typeface and loads faces only w
 
 test('each caption part has its own bold and italic switch, and older saves migrate', async ({ page }) => {
   await page.evaluate(() => {
-    localStorage.setItem('instaframe_lang', 'en');
-    localStorage.setItem('instaframe_settings', JSON.stringify({ cameraNameBold: true, cameraNameItalic: true }));
+    localStorage.setItem('instaframe_lab_lang', 'en');
+    localStorage.setItem('instaframe_lab_settings', JSON.stringify({ cameraNameBold: true, cameraNameItalic: true }));
   });
   await page.reload();
   const checked = () => page.evaluate(() => Object.fromEntries([
@@ -9690,7 +9707,7 @@ test('each caption part has its own bold and italic switch, and older saves migr
 });
 
 test('an undecodable video names its codec and how to open it', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('instaframe_lang', 'en'));
+  await page.evaluate(() => localStorage.setItem('instaframe_lab_lang', 'en'));
   await page.reload();
   const hevcSupported = await page.evaluate(() => {
     const type = 'video/mp4; codecs="hvc1.2.4.L153.B0"';
@@ -9928,3 +9945,5 @@ test('without HEVC encoding a spatial photo falls back to a 2D photo and says so
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toBe('IMG_SPATIAL_frame.jpg');
 });
+
+

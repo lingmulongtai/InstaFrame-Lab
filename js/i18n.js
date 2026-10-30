@@ -656,7 +656,7 @@ const I18N = {
   },
 };
 
-const LANG_STORAGE_KEY = 'instaframe_lang';
+const LANG_STORAGE_KEY = 'instaframe_lab_lang';
 
 function detectInitialLang() {
   let saved = null;

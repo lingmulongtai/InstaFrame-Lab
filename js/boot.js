@@ -16,7 +16,7 @@
 
   let prefs = {};
   try {
-    prefs = JSON.parse(localStorage.getItem('instaframe_prefs')) || {};
+    prefs = JSON.parse(localStorage.getItem('instaframe_lab_prefs')) || {};
   } catch (_) {
     prefs = {};
   }
