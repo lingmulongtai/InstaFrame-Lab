@@ -2,6 +2,8 @@
 
 InstaFrame Lab is a separate experimental UI for [the stable InstaFrame site](https://lingmulongtai.github.io/InstaFrame/). It started from the stable repository at `753a4673bb8b294a70b40c5d4db4d0c027fef54f`; changes here do not deploy to the stable site. Browser preferences are stored under separate keys. The visual direction is inspired by [LastWave Native](https://github.com/Clash-Projects/LastWave-Native), without incorporating its code or assets.
 
+Sample photograph: [Jo Sorgenfri on Unsplash](https://unsplash.com/photos/4OmQ8pDJ5W0). The sample caption uses the camera settings provided with the photograph.
+
 安定版とは別に、UIを試すための実験サイトです。写真・動画の処理機能は引き継いでいますが、実験中のため動作やデザインは変更されることがあります。
 
 写真・動画へEXIF情報付きのフレームを合成する、Web専用のブラウザアプリです。
