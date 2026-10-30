@@ -30,3 +30,14 @@ test('lab identifies itself and links to the unchanged stable site', async ({ pa
   await expect(page.locator('.lab-stable-link')).toHaveAttribute('href', 'https://lingmulongtai.github.io/InstaFrame/');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 });
+
+
+test('sample print shows the supplied photo and camera settings', async ({ page }) => {
+  await page.goto('/');
+  const photo = page.locator('.sample-print-photo img');
+  await expect(photo).toBeVisible();
+  await expect.poll(() => photo.evaluate(img => img.complete && img.naturalWidth)).toBe(1440);
+  await expect(page.locator('.sample-print-camera')).toContainText('X100F');
+  await expect(page.locator('.sample-print-camera')).toContainText('FUJIFILM');
+  await expect(page.locator('.sample-print-exif')).toHaveText('23mmf/81/125sISO 1000');
+});
