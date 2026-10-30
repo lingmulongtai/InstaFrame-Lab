@@ -54,8 +54,8 @@ html, body { font-size: 14px; }
 .setting-row:has(> .setting-control > .text-color-controls),
 .setting-row.text-style-row { padding-top: 10px; padding-bottom: 10px; }
 .pill-group, .ratio-pills { gap: 4px; border-radius: 16px; padding: 4px; background: var(--control-bg); }
-.pill-option label, .ratio-pill label { min-height: 34px; border-radius: 12px; font-size: 12px; }
-.pill-option input:checked + label, .ratio-pill input:checked + label { background: var(--control-active); color: var(--text); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 56%, transparent); }
+.pill-option span, .ratio-pill label { min-height: 34px; border-radius: 12px; font-size: 12px; }
+.pill-option input:checked + span, .ratio-pill input:checked + label { background: var(--control-active); color: var(--text); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 56%, transparent); }
 .customize-panel { background: var(--bg); padding: 18px 16px 30px; }
 .customize-section, .oss-support-link { border-radius: 20px; }
 .oss-support { padding: 12px 2px 16px; }
