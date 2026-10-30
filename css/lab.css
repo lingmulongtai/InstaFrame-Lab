@@ -134,4 +134,5 @@ html, body { font-size: 14px; }
   :root { --lab-header-h: 0px; }
   .lab-header { display: none; }
   .sidebar-header { min-height: 56px; }
+  body[data-mobile-tab="photos"] .empty-hint .mobile-add-btn { margin-top: 4px; }
 }
